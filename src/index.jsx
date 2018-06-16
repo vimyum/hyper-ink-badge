@@ -8,6 +8,7 @@ const colorTmpl = [
   ['#9734D9' /* purple */, '#65D344' /* green */],
   ['#BFF1E5' /* white */, '#E59D0D' /* orange */],
 ];
+const doubleClickPeriod = 300; //msec
 
 const styles = {
   img: {
@@ -38,13 +39,13 @@ exports.decorateTerm = (Term, { React, notify }) => {
       super(props, context);
       this.clickCount = 0;
       this.termInkInfo = {};
-      this.prevColors = ['#12d812', '#f0297e'];
+      this.prevColors = [...colorTmpl[0]];
 
       this.state = {
-        colors: colorTmpl[1],
+        colors: colorTmpl[0],
         stickToTitile: false,
         colorsOfTitle: {},
-        tmplIdx: 1,
+        tmplIdx: 0,
       };
       props.onActive = () => {
         console.log('onActive is Called!!');
@@ -56,8 +57,6 @@ exports.decorateTerm = (Term, { React, notify }) => {
       if (!term) {
         return;
       }
-      console.log('focused uid: %o', this.props.uid);
-
       // check double click.
       this.clickCount++;
       if (this.clickCount < 2) {
@@ -66,12 +65,10 @@ exports.decorateTerm = (Term, { React, notify }) => {
         }, 300);
       }
       if (this.clickCount < 2) {
-        console.log('single click');
         this.prevColors = [...this.state.colors];
         const e = document.querySelectorAll('use[fill]');
         if (e) {
           e.forEach(el => {
-            console.log('initialize..');
             el.removeAttribute('data-filled');
           });
         }
@@ -84,18 +81,15 @@ exports.decorateTerm = (Term, { React, notify }) => {
         });
       } else {
         console.log('double click');
+        // TBD
       }
-    }
-
-    onFixColor() {
-      console.log('fix selected color to uid/title');
     }
 
     componentDidMount() {
       console.log('props* %o', this.props.uid);
     }
 
-    setColorByTerm(uid) {
+    setInkColor(colors) {
       console.log('setColorByTerm is called.');
       const e = document.querySelectorAll('use[fill]');
       if (!e) {
@@ -104,15 +98,14 @@ exports.decorateTerm = (Term, { React, notify }) => {
       }
       e.forEach(el => {
         if (el.getAttribute('data-filled') == 'true') {
-          console.log('data-filled is true, and retrun');
           return;
         }
         const color = el.getAttribute('fill');
         if (color == this.prevColors[0] || color == baseColor[0]) {
-          el.setAttribute('fill', this.state.colors[0]);
+          el.setAttribute('fill', colors[0]);
           console.log('set to color-0');
         } else if (color == this.prevColors[1] || color == baseColor[1]) {
-          el.setAttribute('fill', this.state.colors[1]);
+          el.setAttribute('fill', colors[1]);
           console.log('set to color-1');
         } else {
           console.log(
@@ -133,7 +126,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
         return;
       }
       console.log('props: %o', this.props);
-      this.setColorByTerm();
+      this.setInkColor(this.state.colors);
     }
 
     render() {
