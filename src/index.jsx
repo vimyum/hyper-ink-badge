@@ -2,11 +2,11 @@ import InkSvg from 'react-svg-loader!./ink_s.svg';
 
 const baseColor = ['#010101', '#a0a0a0'];
 const colorTmpl = [
-  ['#F0297E' /* red */, '#12D812' /* green */],
-  ['#F6CB45' /* yellow */, '#9734D9' /* purple */],
-  ['#69D2E7' /* cyan */, '#DD417D' /* pink */],
-  ['#9734D9' /* purple */, '#65D344' /* green */],
-  ['#BFF1E5' /* white */, '#E59D0D' /* orange */],
+  ['#f0297e' /* red */, '#12d812' /* green */],
+  ['#f6cb45' /* yellow */, '#9734d9' /* purple */],
+  ['#69d2e7' /* cyan */, '#dd417d' /* pink */],
+  ['#9734d9' /* purple */, '#65d344' /* green */],
+  ['#bff1e5' /* white */, '#e59d0d' /* orange */],
 ];
 const doubleClickPeriod = 300; //msec
 
@@ -40,16 +40,57 @@ exports.decorateTerm = (Term, { React, notify }) => {
       this.clickCount = 0;
       this.termInkInfo = {};
       this.prevColors = [...colorTmpl[0]];
+      this.colorsOfTitle = {};
+      this.prevTitle = '';
 
       this.state = {
         colors: colorTmpl[0],
-        stickToTitile: false,
-        colorsOfTitle: {},
         tmplIdx: 0,
       };
       props.onActive = () => {
         console.log('onActive is Called!!');
       };
+    }
+
+    requireRepaint() {
+      const e = document.querySelectorAll('use[fill]');
+      if (e) {
+        e.forEach(el => {
+          el.removeAttribute('data-filled');
+        });
+      }
+    }
+
+    changeColorByTmpl() {
+      this.requireRepaint();
+      console.log('set prevColors to %o', this.state.colors);
+      // this.prevColors = [...this.state.colors];
+      const idx = this.state.tmplIdx;
+      const newIdx = idx < colorTmpl.length - 1 ? idx + 1 : 0;
+      this.prevColors = [...this.state.colors];
+      this.setState({
+        colors: colorTmpl[newIdx],
+        tmplIdx: newIdx,
+      });
+    }
+
+    fixColorToTitle() {
+      const { term } = this.props;
+      if (!term) {
+        console.error('term is undefined.');
+        return;
+      }
+      const { title } = term;
+      if (!this.colorsOfTitle[title]) {
+        // fix to title
+        notify(`Ink is sticky to ${title}`, 'this is a body');
+        // console.log(`setPrevColors:%o`, this.state.colors);
+        // this.prevColors = [...this.state.colors];
+        this.colorsOfTitle[title] = [...this.state.colors];
+      } else {
+        // unfix to title
+        delete this.colorsOfTitle[title];
+      }
     }
 
     onChangeColor() {
@@ -59,38 +100,29 @@ exports.decorateTerm = (Term, { React, notify }) => {
       }
       // check double click.
       this.clickCount++;
-      if (this.clickCount < 2) {
-        setTimeout(() => {
-          this.clickCount = 0;
-        }, 300);
+      if (this.clickCount > 1) {
+        return;
       }
-      if (this.clickCount < 2) {
-        this.prevColors = [...this.state.colors];
-        const e = document.querySelectorAll('use[fill]');
-        if (e) {
-          e.forEach(el => {
-            el.removeAttribute('data-filled');
-          });
-        }
 
-        const idx = this.state.tmplIdx;
-        const newIdx = idx < colorTmpl.length - 1 ? idx + 1 : 0;
-        this.setState({
-          colors: colorTmpl[newIdx],
-          tmplIdx: newIdx,
-        });
-      } else {
-        console.log('double click');
-        // TBD
-      }
+      setTimeout(() => {
+        if (this.clickCount < 2) {
+          // Single Click
+          this.changeColorByTmpl();
+        } else {
+          // Double Click
+          this.fixColorToTitle();
+        }
+        this.clickCount = 0;
+      }, 300);
     }
 
     componentDidMount() {
       console.log('props* %o', this.props.uid);
     }
 
-    setInkColor(colors) {
-      console.log('setColorByTerm is called.');
+    setInkColor({ from, to }) {
+      console.log('setInkColor is called.');
+
       const e = document.querySelectorAll('use[fill]');
       if (!e) {
         console.info('No use[fill].');
@@ -101,32 +133,64 @@ exports.decorateTerm = (Term, { React, notify }) => {
           return;
         }
         const color = el.getAttribute('fill');
-        if (color == this.prevColors[0] || color == baseColor[0]) {
-          el.setAttribute('fill', colors[0]);
+        if (color == from[0] || color == baseColor[0]) {
+          el.setAttribute('fill', to[0]);
           console.log('set to color-0');
-        } else if (color == this.prevColors[1] || color == baseColor[1]) {
-          el.setAttribute('fill', colors[1]);
+        } else if (color == from[1] || color == baseColor[1]) {
+          el.setAttribute('fill', to[1]);
           console.log('set to color-1');
         } else {
           console.log(
-            'NOT match to previous color: %o',
-            el.getAttribute('fill')
+            'NOT match to previous color: find: %o, from: %o, %o',
+            color,
+            from[0],
+            from[1]
           );
         }
         el.setAttribute('data-filled', 'true');
       });
     }
 
-    setColorByTitle(title) {
-      return [];
+    isSameColor(color1, color2) {
+      return color1[0] == color2[0] && color1[1] == color2[1];
+    }
+
+    componentWillReceiveProps(nextProps) {
+      const title = nextProps.term ? nextProps.term.title : null;
+      console.log('TITLE is %o', title);
+      if (title && this.colorsOfTitle[title]) {
+        if (this.isSameColor(this.state.colors, this.colorsOfTitle[title])) {
+          return;
+        }
+        console.log('set color by title(%o)', title);
+        this.prevColors = [...this.state.colors];
+        this.setState({
+          colors: this.colorsOfTitle[title],
+        });
+      } else if (this.colorsOfTitle[this.prevTitle]) {
+        console.log('revert color by title(%o)', this.prevTitle);
+        this.prevColors = [...this.state.colors];
+        this.setState({ colors: colorTmpl[this.state.tmplIdx] });
+      }
     }
 
     componentDidUpdate() {
       if (!this.props.isTermActive) {
         return;
       }
-      console.log('props: %o', this.props);
-      this.setInkColor(this.state.colors);
+      console.log('componentDidUpdate(), props: %o', this.props);
+      const { title } = this.props.term;
+      console.log(`title: ${title}(old: ${this.prevTitle})`);
+
+      if (
+        (this.colorsOfTitle[title] && title != this.prevTitle) ||
+        (this.colorsOfTitle[this.prevTitle] && title != this.prevTitle)
+      ) {
+        console.log('Repaint is required.');
+        this.requireRepaint();
+      }
+      this.setInkColor({ from: this.prevColors, to: this.state.colors });
+      this.prevTitle = title;
     }
 
     render() {
