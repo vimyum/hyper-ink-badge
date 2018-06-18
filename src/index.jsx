@@ -1,4 +1,5 @@
 import InkSvg from 'react-svg-loader!./ink_s.svg';
+import {ChromePicker} from 'react-color';
 
 const baseColor = ['#010101', '#a0a0a0'];
 const colorTmpl = [
@@ -11,6 +12,13 @@ const colorTmpl = [
 const doubleClickPeriod = 300; //msec
 
 const styles = {
+  picker: {
+    zIndex: 20,
+    position: 'fixed',
+    bottom: '45px',
+    right: '10px',
+    cursor: 'pointer',
+  },
   img: {
     zIndex: 20,
     position: 'fixed',
@@ -183,6 +191,19 @@ exports.decorateTerm = (Term, { React, notify }) => {
       this.prevTitle = title;
     }
 
+    selectColor(idx) {
+      return (color, event) => {
+        this.prevColors[idx] = this.state.colors[idx];
+        const newColors = [...this.state.colors];
+        newColors[idx] = color;
+        console.log('COLOR PICKER IS CALLED.')
+        this.requireRepaint();
+        this.setState({
+          colors: newColors,
+        });
+      }
+  }
+
     render() {
       const { uid, isTermActive, term } = this.props;
       if (isTermActive) {
@@ -199,8 +220,11 @@ exports.decorateTerm = (Term, { React, notify }) => {
       ];
       if (isTermActive) {
         children.unshift(
+          <div>
+          <ChromePicker disableAlpha={true} color={this.state.colors[0]} onChangeComplete={this.selectColor(0).bind(this)} />
           <div onClick={this.onChangeColor.bind(this)} style={styles.img}>
             <InkSvg />
+          </div>
           </div>
         );
       }
