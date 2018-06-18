@@ -37,7 +37,6 @@ exports.decorateTerm = (Term, { React, notify }) => {
   return class extends React.Component {
     constructor(props, context) {
       super(props, context);
-      this.clickCount = 0;
       this.termInkInfo = {};
       this.prevColors = [...colorTmpl[0]];
       this.colorsOfTitle = {};
@@ -93,27 +92,18 @@ exports.decorateTerm = (Term, { React, notify }) => {
       }
     }
 
-    onChangeColor() {
+    onChangeColor(event) {
       const { term } = this.props;
       if (!term) {
         return;
       }
-      // check double click.
-      this.clickCount++;
-      if (this.clickCount > 1) {
-        return;
-      }
+      console.log('%o', event);
 
-      setTimeout(() => {
-        if (this.clickCount < 2) {
-          // Single Click
-          this.changeColorByTmpl();
-        } else {
-          // Double Click
+      if (event.shiftKey) {
           this.fixColorToTitle();
-        }
-        this.clickCount = 0;
-      }, 300);
+      } else {
+          this.changeColorByTmpl();
+      }
     }
 
     componentDidMount() {
