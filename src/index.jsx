@@ -35,20 +35,7 @@ const styles = {
       backgroundImage: 'linear-gradient( -45deg, #f5eeed 25%, #f4e2de 25%, #f4e2de 50%, #f5eeed 50%, #f5eeed 75%, #f4e2de 75%, #f4e2de )',
       backgroundSize: '30px 30px',
       padding: '2em',
-
   },
-  /*
-  // Trapezoid
-  dialogContainer: {
-      alignItems: 'center',
-      width: '680px',
-      borderRadius: '56px 56px 6px 6px / 16px 16px 6px 6px',
-      borderBottom: '380px solid grey',
-      borderLeft: '40px solid transparent',
-      borderRight: '40px solid transparent',
-      height: '0',
-  },
-  */
   img: {
     zIndex: 20,
     position: 'fixed',
@@ -95,6 +82,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
       this.state = {
         colors: colorTmpl[0],
         tmplIdx: 0,
+        showPicker: false,
       };
       props.onActive = () => {
         console.log('onActive is Called!!');
@@ -273,16 +261,19 @@ exports.decorateTerm = (Term, { React, notify }) => {
         ),
       ];
       if (isTermActive) {
-        children.unshift(
-          <div>
-            <div style={styles.dialogContainer}>
-            {pickers}
-            <OkInk />
+
+        if (this.state.showPicker) {
+          children.unshift(
+            <div style={styles.dialogContainer} >
+              {pickers}
+              <OkInk onClick={a => this.setState({showPicker: false})} style={{ cursor: 'pointer' }} />
             </div>
+          );
+      }
+
+        children.unshift(
           <div onClick={this.onChangeColor.bind(this)} style={styles.img}>
-          <h1 className="inktypo">hello ika world</h1>
             <InkSvg />
-          </div>
           </div>
         );
       }
