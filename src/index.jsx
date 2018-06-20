@@ -49,7 +49,9 @@ exports.decorateConfig = config => {
   const fontPath = path.join(__dirname, 'paintball_web.woff');
   console.error(`here is ${fontPath}`);
   return Object.assign({}, config, {
+    // ${config.css || ''}
     css: `
+    ${config.css || ''}
     @font-face {
       font-family: Paintball;
       font-weight: bold;
@@ -60,9 +62,6 @@ exports.decorateConfig = config => {
       font-family: Paintball;
     }`,
   });
-      // ${config.css || ''}
-      // font-family: monospace;
-      // src: url(file://${fontPath});
 };
 
 exports.middleware = store => next => action => {
@@ -82,7 +81,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
       this.state = {
         colors: colorTmpl[0],
         tmplIdx: 0,
-        showPicker: false,
+        showPicker: true,
       };
       props.onActive = () => {
         console.log('onActive is Called!!');
@@ -139,6 +138,8 @@ exports.decorateTerm = (Term, { React, notify }) => {
 
       if (event.shiftKey) {
           this.fixColorToTitle();
+      } else if (event.metaKey) {
+        this.setState({showPicker: true});
       } else {
           this.changeColorByTmpl();
       }
