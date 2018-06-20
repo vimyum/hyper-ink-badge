@@ -1,4 +1,7 @@
 import InkSvg from 'react-svg-loader!./ink_s.svg';
+import OkInk from 'react-svg-loader!./okink.svg';
+import {ChromePicker, CirclePicker} from 'react-color';
+const path = require('path');
 
 const baseColor = ['#010101', '#a0a0a0'];
 const colorTmpl = [
@@ -11,6 +14,28 @@ const colorTmpl = [
 const doubleClickPeriod = 300; //msec
 
 const styles = {
+  picker: {
+    zIndex: 20,
+    position: 'fixed',
+    bottom: '45px',
+    right: '10px',
+    cursor: 'pointer',
+  },
+  pickerContainer: {
+    display: 'flex',
+    justifyContent: 'space-around',
+  },
+  dialogContainer: {
+    position: 'fixed',
+    zIndex: 21,
+    width: '680px',
+    left: 'calc(50% - 680px/2)',
+    top: '50px',
+      borderRadius: '16px 16px 16px 16px / 16px 16px 16px 16px',
+      backgroundImage: 'linear-gradient( -45deg, #f5eeed 25%, #f4e2de 25%, #f4e2de 50%, #f5eeed 50%, #f5eeed 75%, #f4e2de 75%, #f4e2de )',
+      backgroundSize: '30px 30px',
+      padding: '2em',
+  },
   img: {
     zIndex: 20,
     position: 'fixed',
@@ -21,10 +46,21 @@ const styles = {
 };
 
 exports.decorateConfig = config => {
+  const fontPath = path.join(__dirname, 'paintball_web.woff');
+  console.error(`here is ${fontPath}`);
   return Object.assign({}, config, {
+    // ${config.css || ''}
     css: `
-      ${config.css || ''}
-	    `,
+    ${config.css || ''}
+    @font-face {
+      font-family: Paintball;
+      font-weight: bold;
+      src: url(http://fizzystack.web.fc2.com/paintball_web.woff);
+    }
+    .inktypo {
+      color: red;
+      font-family: Paintball;
+    }`,
   });
 };
 
@@ -45,6 +81,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
       this.state = {
         colors: colorTmpl[0],
         tmplIdx: 0,
+        showPicker: true,
       };
       props.onActive = () => {
         console.log('onActive is Called!!');
@@ -101,6 +138,8 @@ exports.decorateTerm = (Term, { React, notify }) => {
 
       if (event.shiftKey) {
           this.fixColorToTitle();
+      } else if (event.metaKey) {
+        this.setState({showPicker: true});
       } else {
           this.changeColorByTmpl();
       }
@@ -183,11 +222,36 @@ exports.decorateTerm = (Term, { React, notify }) => {
       this.prevTitle = title;
     }
 
+    selectColor(idx) {
+      return (color, event) => {
+        this.prevColors[idx] = this.state.colors[idx];
+        const newColors = [...this.state.colors];
+        newColors[idx] = color.hex;
+        console.log('COLOR PICKER IS CALLED: %o', color.hex);
+        this.requireRepaint();
+        this.setState({
+          colors: newColors,
+        });
+      }
+  }
+
     render() {
       const { uid, isTermActive, term } = this.props;
       if (isTermActive) {
         console.log('rendered: %o', this.props.uid);
       }
+
+      /*
+      const pickers = (<div style={styles.pickerContainer}>
+              <ChromePicker key='color1' disableAlpha={true} color={this.state.colors[0]} onChangeComplete={this.selectColor(0).bind(this)} />
+              <ChromePicker key='color2' disableAlpha={true} color={this.state.colors[1]} onChangeComplete={this.selectColor(1).bind(this)} />
+            </div>);
+            */
+
+      const pickers = (<div style={styles.pickerContainer}>
+              <CirclePicker key='color1' color={this.state.colors[0]} onChangeComplete={this.selectColor(0).bind(this)} />
+              <CirclePicker key='color2' color={this.state.colors[1]} onChangeComplete={this.selectColor(1).bind(this)} />
+            </div>);
 
       const children = [
         React.createElement(
@@ -198,6 +262,16 @@ exports.decorateTerm = (Term, { React, notify }) => {
         ),
       ];
       if (isTermActive) {
+
+        if (this.state.showPicker) {
+          children.unshift(
+            <div style={styles.dialogContainer} >
+              {pickers}
+              <OkInk onClick={a => this.setState({showPicker: false})} style={{ cursor: 'pointer' }} />
+            </div>
+          );
+      }
+
         children.unshift(
           <div onClick={this.onChangeColor.bind(this)} style={styles.img}>
             <InkSvg />
