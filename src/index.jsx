@@ -1,5 +1,7 @@
 import InkSvg from 'react-svg-loader!./ink_s.svg';
+import OkInk from 'react-svg-loader!./okink.svg';
 import {ChromePicker, CirclePicker} from 'react-color';
+const path = require('path');
 
 const baseColor = ['#010101', '#a0a0a0'];
 const colorTmpl = [
@@ -57,11 +59,23 @@ const styles = {
 };
 
 exports.decorateConfig = config => {
+  const fontPath = path.join(__dirname, 'paintball_web.woff');
+  console.error(`here is ${fontPath}`);
   return Object.assign({}, config, {
     css: `
-      ${config.css || ''}
-	    `,
+    @font-face {
+      font-family: Paintball;
+      font-weight: bold;
+      src: url(http://fizzystack.web.fc2.com/paintball_web.woff);
+    }
+    .inktypo {
+      color: red;
+      font-family: Paintball;
+    }`,
   });
+      // ${config.css || ''}
+      // font-family: monospace;
+      // src: url(file://${fontPath});
 };
 
 exports.middleware = store => next => action => {
@@ -263,8 +277,10 @@ exports.decorateTerm = (Term, { React, notify }) => {
           <div>
             <div style={styles.dialogContainer}>
             {pickers}
+            <OkInk />
             </div>
           <div onClick={this.onChangeColor.bind(this)} style={styles.img}>
+          <h1 className="inktypo">hello ika world</h1>
             <InkSvg />
           </div>
           </div>
