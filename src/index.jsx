@@ -1,5 +1,5 @@
 import InkSvg from 'react-svg-loader!./ink_s.svg';
-import {ChromePicker} from 'react-color';
+import {ChromePicker, CirclePicker} from 'react-color';
 
 const baseColor = ['#010101', '#a0a0a0'];
 const colorTmpl = [
@@ -19,6 +19,34 @@ const styles = {
     right: '10px',
     cursor: 'pointer',
   },
+  pickerContainer: {
+    display: 'flex',
+    justifyContent: 'space-around',
+  },
+  dialogContainer: {
+    position: 'fixed',
+    zIndex: 21,
+    width: '680px',
+    left: 'calc(50% - 680px/2)',
+    top: '50px',
+      borderRadius: '16px 16px 16px 16px / 16px 16px 16px 16px',
+      backgroundImage: 'linear-gradient( -45deg, #f5eeed 25%, #f4e2de 25%, #f4e2de 50%, #f5eeed 50%, #f5eeed 75%, #f4e2de 75%, #f4e2de )',
+      backgroundSize: '30px 30px',
+      padding: '2em',
+
+  },
+  /*
+  // Trapezoid
+  dialogContainer: {
+      alignItems: 'center',
+      width: '680px',
+      borderRadius: '56px 56px 6px 6px / 16px 16px 6px 6px',
+      borderBottom: '380px solid grey',
+      borderLeft: '40px solid transparent',
+      borderRight: '40px solid transparent',
+      height: '0',
+  },
+  */
   img: {
     zIndex: 20,
     position: 'fixed',
@@ -195,8 +223,8 @@ exports.decorateTerm = (Term, { React, notify }) => {
       return (color, event) => {
         this.prevColors[idx] = this.state.colors[idx];
         const newColors = [...this.state.colors];
-        newColors[idx] = color;
-        console.log('COLOR PICKER IS CALLED.')
+        newColors[idx] = color.hex;
+        console.log('COLOR PICKER IS CALLED: %o', color.hex);
         this.requireRepaint();
         this.setState({
           colors: newColors,
@@ -210,6 +238,18 @@ exports.decorateTerm = (Term, { React, notify }) => {
         console.log('rendered: %o', this.props.uid);
       }
 
+      /*
+      const pickers = (<div style={styles.pickerContainer}>
+              <ChromePicker key='color1' disableAlpha={true} color={this.state.colors[0]} onChangeComplete={this.selectColor(0).bind(this)} />
+              <ChromePicker key='color2' disableAlpha={true} color={this.state.colors[1]} onChangeComplete={this.selectColor(1).bind(this)} />
+            </div>);
+            */
+
+      const pickers = (<div style={styles.pickerContainer}>
+              <CirclePicker key='color1' color={this.state.colors[0]} onChangeComplete={this.selectColor(0).bind(this)} />
+              <CirclePicker key='color2' color={this.state.colors[1]} onChangeComplete={this.selectColor(1).bind(this)} />
+            </div>);
+
       const children = [
         React.createElement(
           Term,
@@ -221,7 +261,9 @@ exports.decorateTerm = (Term, { React, notify }) => {
       if (isTermActive) {
         children.unshift(
           <div>
-          <ChromePicker disableAlpha={true} color={this.state.colors[0]} onChangeComplete={this.selectColor(0).bind(this)} />
+            <div style={styles.dialogContainer}>
+            {pickers}
+            </div>
           <div onClick={this.onChangeColor.bind(this)} style={styles.img}>
             <InkSvg />
           </div>
