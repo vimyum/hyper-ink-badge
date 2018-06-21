@@ -26,6 +26,8 @@ const styles = {
     justifyContent: 'space-around',
   },
   dialogContainer: {
+    display: 'flex',
+    flexDirection: 'column',
     position: 'fixed',
     zIndex: 21,
     width: '680px',
@@ -43,6 +45,12 @@ const styles = {
     right: '0px',
     cursor: 'pointer',
   },
+  okButton: { 
+   marginTop: '1.5em',
+   marginRight: '4em',
+   cursor: 'pointer',
+   marginLeft: 'auto',
+  },
 };
 
 exports.decorateConfig = config => {
@@ -57,6 +65,9 @@ exports.decorateConfig = config => {
       font-weight: bold;
       src: url(http://fizzystack.web.fc2.com/paintball_web.woff);
     }
+    .color-label {
+      padding-bottom: 0.5em;
+    };
     .inktypo {
       color: red;
       font-family: Paintball;
@@ -249,8 +260,14 @@ exports.decorateTerm = (Term, { React, notify }) => {
             */
 
       const pickers = (<div style={styles.pickerContainer}>
+      <div>
+        <h1 className={"inktypo color-label"}>Color1</h1>
               <CirclePicker key='color1' color={this.state.colors[0]} onChangeComplete={this.selectColor(0).bind(this)} />
+              </div>
+      <div>
+        <h1 className={"inktypo color-label"}>Color2</h1>
               <CirclePicker key='color2' color={this.state.colors[1]} onChangeComplete={this.selectColor(1).bind(this)} />
+              </div>
             </div>);
 
       const children = [
@@ -267,7 +284,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
           children.unshift(
             <div style={styles.dialogContainer} >
               {pickers}
-              <OkInk onClick={a => this.setState({showPicker: false})} style={{ cursor: 'pointer' }} />
+              <OkInk onClick={a => this.setState({showPicker: false})} style={styles.okButton} />
             </div>
           );
       }
