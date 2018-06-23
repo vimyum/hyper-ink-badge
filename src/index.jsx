@@ -124,18 +124,19 @@ exports.middleware = store => next => action => {
     }
     const colorPair = getColorPair(command[2]);
     if (colorPair) {
-      console.log('find color: %o', colorPair);
+      console.log('commannd UPDATE_COLOR: %o', colorPair);
       store.dispatch({
         type: 'UPDATE_COLOR',
         payload: colorPair,
       });
     } else {
-      console.log('find title: %o', command[2]);
+      console.log('command UPDATE_TEXT: %o', command[2]);
       store.dispatch({
         type: 'UPDATE_TEXT',
         payload: command[2],
       });
     }
+    return; // surpress show shell error message..
   }
   next(action);
 };
