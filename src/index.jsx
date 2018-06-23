@@ -1,6 +1,6 @@
 import InkSvg from 'react-svg-loader!./ink_s.svg';
 import OkInk from 'react-svg-loader!./okink.svg';
-import {ChromePicker, CirclePicker} from 'react-color';
+import { ChromePicker, CirclePicker } from 'react-color';
 const path = require('path');
 let inkCommand = 'inktoon';
 
@@ -15,16 +15,16 @@ const colorTmpl = [
 const doubleClickPeriod = 300; //msec
 
 // below detection command reffered from hyper-power
-const detectCommand = (cmd) => (data) => {
+const detectCommand = cmd => data => {
   const patterns = [
     `${cmd} (.+): command not found`,
     `command not found: ${cmd} (.+)`,
     `Unknown command '${cmd} (.+)'`,
-    `'${cmd} (.+)' is not recognized.*`
+    `'${cmd} (.+)' is not recognized.*`,
   ];
-  const reg = new RegExp(patterns.join('|'))
+  const reg = new RegExp(patterns.join('|'));
   return data.match(reg);
-}
+};
 
 const styles = {
   picker: {
@@ -46,10 +46,11 @@ const styles = {
     width: '680px',
     left: 'calc(50% - 680px/2)',
     top: '50px',
-      borderRadius: '16px 16px 16px 16px / 16px 16px 16px 16px',
-      backgroundImage: 'linear-gradient( -45deg, #f5eeed 25%, #f4e2de 25%, #f4e2de 50%, #f5eeed 50%, #f5eeed 75%, #f4e2de 75%, #f4e2de )',
-      backgroundSize: '30px 30px',
-      padding: '2em',
+    borderRadius: '16px 16px 16px 16px / 16px 16px 16px 16px',
+    backgroundImage:
+      'linear-gradient( -45deg, #f5eeed 25%, #f4e2de 25%, #f4e2de 50%, #f5eeed 50%, #f5eeed 75%, #f4e2de 75%, #f4e2de )',
+    backgroundSize: '30px 30px',
+    padding: '2em',
   },
   img: {
     zIndex: 20,
@@ -58,11 +59,11 @@ const styles = {
     right: '0px',
     cursor: 'pointer',
   },
-  okButton: { 
-   marginTop: '1.5em',
-   marginRight: '4em',
-   cursor: 'pointer',
-   marginLeft: 'auto',
+  okButton: {
+    marginTop: '1.5em',
+    marginRight: '4em',
+    cursor: 'pointer',
+    marginLeft: 'auto',
   },
 };
 
@@ -88,21 +89,25 @@ exports.decorateConfig = config => {
   });
 };
 
-const getColorPair = (str) => {
+const getColorPair = str => {
   const colors = str.replace(/\s+/g, '').split(',');
   console.log(`getColorPair: %o`, colors);
   if (colors.length !== 2) {
     return null;
   }
-  if (colors.every(c => /^#[0-9,abcdefABCDEF]{6}$|^#[0-9abcdefABCDEF]{3}$/.test(c))) {
+  if (
+    colors.every(c =>
+      /^#[0-9,abcdefABCDEF]{6}$|^#[0-9abcdefABCDEF]{3}$/.test(c)
+    )
+  ) {
     console.log('find color!! %o', colors);
     return colors;
   }
   return null;
-}
+};
 
 exports.middleware = store => next => action => {
-    const regExp = new RegExp('^' + inkCommand + '\\s+(.+)');
+  const regExp = new RegExp('^' + inkCommand + '\\s+(.+)');
   if (action.type === 'SESSION_ADD_DATA') {
     const command = detectCommand(inkCommand)(action.data);
     if (!command) {
@@ -116,39 +121,41 @@ exports.middleware = store => next => action => {
         type: 'UPDATE_COLOR',
         payload: colorPair,
       });
-      } else {
-        console.log('find title: %o', command[2]);
-        store.dispatch({
-              type: 'UPDATE_TEXT',
-              payload: command[2],
-            });
-          } 
+    } else {
+      console.log('find title: %o', command[2]);
+      store.dispatch({
+        type: 'UPDATE_TEXT',
+        payload: command[2],
+      });
     }
-    next(action);
-}
+  }
+  next(action);
+};
 
 exports.reduceUI = (state, action) => {
-    console.log('receive action: %o', action.type);
+  console.log('receive action: %o', action.type);
   switch (action.type) {
     case 'UPDATE_COLOR':
       console.log('%o is received', action.type);
-      return state.set('colorState',  action.payload.map(e => e.toLowerCase()));
+      return state.set('colorState', action.payload.map(e => e.toLowerCase()));
     case 'UPDATE_TEXT':
       console.log('%o is received', action.type);
-      return state.set('textState',  action.payload);
+      return state.set('textState', action.payload);
     default:
       return state;
   }
 };
 
-exports.mapTermsState = (state, map) => Object.assign(map, {
-  colorState: state.ui.colorState,
-  textState: state.ui.textState,
-});
-const passProps = (uid, parentProps, props) => Object.assign(props, {
-  colorState: parentProps.colorState,
-  textState: parentProps.textState,
-});
+exports.mapTermsState = (state, map) =>
+  Object.assign(map, {
+    colorState: state.ui.colorState,
+    textState: state.ui.textState,
+  });
+const passProps = (uid, parentProps, props) =>
+  Object.assign(props, {
+    colorState: parentProps.colorState,
+    textState: parentProps.textState,
+  });
 exports.getTermGroupProps = passProps;
 exports.getTermProps = passProps;
 
@@ -219,11 +226,11 @@ exports.decorateTerm = (Term, { React, notify }) => {
       console.log('%o', event);
 
       if (event.shiftKey) {
-          this.fixColorToTitle();
+        this.fixColorToTitle();
       } else if (event.metaKey) {
-        this.setState({showPicker: true});
+        this.setState({ showPicker: true });
       } else {
-          this.changeColorByTmpl();
+        this.changeColorByTmpl();
       }
     }
 
@@ -285,7 +292,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
           console.log('set color by title(%o)', title);
           this.prevColors = [...this.state.colors];
           this.setState({
-           colors: this.colorsOfTitle[title],
+            colors: this.colorsOfTitle[title],
           });
         }
       } else if (this.colorsOfTitle[this.prevTitle]) {
@@ -294,12 +301,15 @@ exports.decorateTerm = (Term, { React, notify }) => {
         this.setState({ colors: colorTmpl[this.state.tmplIdx] });
       }
 
-      console.log(`need change color: %o`, this.props.colorState !== nextProps.colorState);
+      console.log(
+        `need change color: %o`,
+        this.props.colorState !== nextProps.colorState
+      );
       if (this.props.colorState !== nextProps.colorState) {
         console.log('XXXXXXXXX change colors XXXXXXXXXXX');
         this.requireRepaint();
         this.prevColors = [...this.state.colors];
-        this.setState({ colors: nextProps.colorState});
+        this.setState({ colors: nextProps.colorState });
       }
     }
 
@@ -332,8 +342,8 @@ exports.decorateTerm = (Term, { React, notify }) => {
         this.setState({
           colors: newColors,
         });
-      }
-  }
+      };
+    }
 
     render() {
       const { uid, isTermActive, term } = this.props;
@@ -348,16 +358,26 @@ exports.decorateTerm = (Term, { React, notify }) => {
             </div>);
             */
 
-      const pickers = (<div style={styles.pickerContainer}>
-      <div>
-        <h1 className={"inktypo color-label"}>Color1</h1>
-              <CirclePicker key='color1' color={this.state.colors[0]} onChangeComplete={this.selectColor(0).bind(this)} />
-              </div>
-      <div>
-        <h1 className={"inktypo color-label"}>Color2</h1>
-              <CirclePicker key='color2' color={this.state.colors[1]} onChangeComplete={this.selectColor(1).bind(this)} />
-              </div>
-            </div>);
+      const pickers = (
+        <div style={styles.pickerContainer}>
+          <div>
+            <h1 className={'inktypo color-label'}>Color1</h1>
+            <CirclePicker
+              key="color1"
+              color={this.state.colors[0]}
+              onChangeComplete={this.selectColor(0).bind(this)}
+            />
+          </div>
+          <div>
+            <h1 className={'inktypo color-label'}>Color2</h1>
+            <CirclePicker
+              key="color2"
+              color={this.state.colors[1]}
+              onChangeComplete={this.selectColor(1).bind(this)}
+            />
+          </div>
+        </div>
+      );
 
       const children = [
         React.createElement(
@@ -368,15 +388,17 @@ exports.decorateTerm = (Term, { React, notify }) => {
         ),
       ];
       if (isTermActive) {
-
         if (this.state.showPicker) {
           children.unshift(
-            <div style={styles.dialogContainer} >
+            <div style={styles.dialogContainer}>
               {pickers}
-              <OkInk onClick={a => this.setState({showPicker: false})} style={styles.okButton} />
+              <OkInk
+                onClick={a => this.setState({ showPicker: false })}
+                style={styles.okButton}
+              />
             </div>
           );
-      }
+        }
 
         children.unshift(
           <div onClick={this.onChangeColor.bind(this)} style={styles.img}>
