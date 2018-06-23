@@ -2,6 +2,7 @@ import InkSvg from 'react-svg-loader!./ink_s.svg';
 import OkInk from 'react-svg-loader!./okink.svg';
 import {ChromePicker, CirclePicker} from 'react-color';
 const path = require('path');
+let inkCommand = 'inktoon';
 
 const baseColor = ['#010101', '#a0a0a0'];
 const colorTmpl = [
@@ -12,6 +13,18 @@ const colorTmpl = [
   ['#bff1e5' /* white */, '#e59d0d' /* orange */],
 ];
 const doubleClickPeriod = 300; //msec
+
+// below detection command reffered from hyper-power
+const detectCommand = (cmd) => (data) => {
+  const patterns = [
+    `${cmd} (.+): command not found`,
+    `command not found: ${cmd} (.+)`,
+    `Unknown command '${cmd} (.+)'`,
+    `'${cmd} (.+)' is not recognized.*`
+  ];
+  const reg = new RegExp(patterns.join('|'))
+  return data.match(reg);
+}
 
 const styles = {
   picker: {
@@ -75,10 +88,43 @@ exports.decorateConfig = config => {
   });
 };
 
+const getColorPair = (str) => {
+  const colors = str.replace(/\s+/g, '').split(',');
+  if (colors.length !== 2) {
+    return null;
+  }
+  if (colors.every(c => /^#[0-9,abcdefABCDEF]{6}$|^#[0-9abdefABCDEF]{3}$/.test(c))) {
+    console.log('find color!! %o', colors);
+    return colors;
+  }
+  return null;
+}
+
 exports.middleware = store => next => action => {
-  // TBD
-  next(action);
-};
+    const regExp = new RegExp('^' + inkCommand + '\\s+(.+)');
+  if (action.type === 'SESSION_ADD_DATA') {
+    const command = detectCommand(inkCommand)(action.data);
+    if (!command) {
+      next(action);
+      return;
+    }
+    const colorPair = getColorPair(command[2]);
+    if (colorPair) {
+      console.log('find color: %o', colorPair);
+      store.dispatch({
+        type: 'UPDATE_COLOR',
+        payload: colorPair,
+      });
+      } else {
+      console.log('find title: %o', command[2]);
+            store.dispatch({
+              type: 'UPDATE_TEXT',
+              payload: command[2],
+            });
+          } 
+    }
+    next(action);
+}
 
 exports.decorateTerm = (Term, { React, notify }) => {
   return class extends React.Component {
@@ -92,13 +138,12 @@ exports.decorateTerm = (Term, { React, notify }) => {
       this.state = {
         colors: colorTmpl[0],
         tmplIdx: 0,
-        showPicker: true,
+        showPicker: false,
       };
       props.onActive = () => {
         console.log('onActive is Called!!');
       };
     }
-
     requireRepaint() {
       const e = document.querySelectorAll('use[fill]');
       if (e) {
@@ -158,6 +203,17 @@ exports.decorateTerm = (Term, { React, notify }) => {
 
     componentDidMount() {
       console.log('props* %o', this.props.uid);
+      console.log('XXX config is :%o', window.config.getConfig().hyperInktoon);
+      const config = window.config.getConfig().hyperInktoon;
+      if (!config) {
+        return;
+      }
+      if (config.command) {
+        inkCommand = config.command;
+      }
+      if (config.picker) {
+        this.picker = true;
+      }
     }
 
     setInkColor({ from, to }) {
