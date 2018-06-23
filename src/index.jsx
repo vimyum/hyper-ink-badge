@@ -90,10 +90,11 @@ exports.decorateConfig = config => {
 
 const getColorPair = (str) => {
   const colors = str.replace(/\s+/g, '').split(',');
+  console.log(`getColorPair: %o`, colors);
   if (colors.length !== 2) {
     return null;
   }
-  if (colors.every(c => /^#[0-9,abcdefABCDEF]{6}$|^#[0-9abdefABCDEF]{3}$/.test(c))) {
+  if (colors.every(c => /^#[0-9,abcdefABCDEF]{6}$|^#[0-9abcdefABCDEF]{3}$/.test(c))) {
     console.log('find color!! %o', colors);
     return colors;
   }
@@ -116,8 +117,8 @@ exports.middleware = store => next => action => {
         payload: colorPair,
       });
       } else {
-      console.log('find title: %o', command[2]);
-            store.dispatch({
+        console.log('find title: %o', command[2]);
+        store.dispatch({
               type: 'UPDATE_TEXT',
               payload: command[2],
             });
@@ -125,6 +126,31 @@ exports.middleware = store => next => action => {
     }
     next(action);
 }
+
+exports.reduceUI = (state, action) => {
+    console.log('receive action: %o', action.type);
+  switch (action.type) {
+    case 'UPDATE_COLOR':
+      console.log('%o is received', action.type);
+      return state.set('colorState',  action.payload.map(e => e.toLowerCase()));
+    case 'UPDATE_TEXT':
+      console.log('%o is received', action.type);
+      return state.set('textState',  action.payload);
+    default:
+      return state;
+  }
+};
+
+exports.mapTermsState = (state, map) => Object.assign(map, {
+  colorState: state.ui.colorState,
+  textState: state.ui.textState,
+});
+const passProps = (uid, parentProps, props) => Object.assign(props, {
+  colorState: parentProps.colorState,
+  textState: parentProps.textState,
+});
+exports.getTermGroupProps = passProps;
+exports.getTermProps = passProps;
 
 exports.decorateTerm = (Term, { React, notify }) => {
   return class extends React.Component {
@@ -253,20 +279,27 @@ exports.decorateTerm = (Term, { React, notify }) => {
 
     componentWillReceiveProps(nextProps) {
       const title = nextProps.term ? nextProps.term.title : null;
-      console.log('TITLE is %o', title);
+      console.log('nextProps %o', nextProps);
       if (title && this.colorsOfTitle[title]) {
-        if (this.isSameColor(this.state.colors, this.colorsOfTitle[title])) {
-          return;
+        if (!this.isSameColor(this.state.colors, this.colorsOfTitle[title])) {
+          console.log('set color by title(%o)', title);
+          this.prevColors = [...this.state.colors];
+          this.setState({
+           colors: this.colorsOfTitle[title],
+          });
         }
-        console.log('set color by title(%o)', title);
-        this.prevColors = [...this.state.colors];
-        this.setState({
-          colors: this.colorsOfTitle[title],
-        });
       } else if (this.colorsOfTitle[this.prevTitle]) {
         console.log('revert color by title(%o)', this.prevTitle);
         this.prevColors = [...this.state.colors];
         this.setState({ colors: colorTmpl[this.state.tmplIdx] });
+      }
+
+      console.log(`need change color: %o`, this.props.colorState !== nextProps.colorState);
+      if (this.props.colorState !== nextProps.colorState) {
+        console.log('XXXXXXXXX change colors XXXXXXXXXXX');
+        this.requireRepaint();
+        this.prevColors = [...this.state.colors];
+        this.setState({ colors: nextProps.colorState});
       }
     }
 
