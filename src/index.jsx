@@ -245,8 +245,8 @@ exports.decorateTerm = (Term, { React, notify }) => {
       if (config.command) {
         inkCommand = config.command;
       }
-      if (config.picker) {
-        this.picker = true;
+      if (config.advancedPicker) {
+        this.advancedPicker = true;
       }
     }
 
@@ -347,33 +347,19 @@ exports.decorateTerm = (Term, { React, notify }) => {
         console.log('rendered: %o', this.props.uid);
       }
 
-      /*
-      const pickers = (<div style={styles.pickerContainer}>
-              <ChromePicker key='color1' disableAlpha={true} color={this.state.colors[0]} onChangeComplete={this.selectColor(0).bind(this)} />
-              <ChromePicker key='color2' disableAlpha={true} color={this.state.colors[1]} onChangeComplete={this.selectColor(1).bind(this)} />
-            </div>);
-            */
-
-      const pickers = (
-        <div style={styles.pickerContainer}>
+      const pickers = this.advancedPicker === true ?
+        [0, 1].map(idx => 
           <div>
-            <h1 className={'inktypo color-label'}>Color1</h1>
-            <CirclePicker
-              key="color1"
-              color={this.state.colors[0]}
-              onChangeComplete={this.selectColor(0).bind(this)}
-            />
+            <h1 className={'inktypo color-label'}>{`Color${idx + 1}`}</h1>
+            <ChromePicker key={`color${idx}`} disableAlpha={true} color={this.state.colors[idx]} onChangeComplete={this.selectColor(idx).bind(this)} />
           </div>
+        ) :
+        [0, 1].map(idx => 
           <div>
-            <h1 className={'inktypo color-label'}>Color2</h1>
-            <CirclePicker
-              key="color2"
-              color={this.state.colors[1]}
-              onChangeComplete={this.selectColor(1).bind(this)}
-            />
+            <h1 className={'inktypo color-label'}>{`Color${idx + 1}`}</h1>
+            <CirclePicker key={`color${idx}`} color={this.state.colors[idx]} onChangeComplete={this.selectColor(idx).bind(this)} />
           </div>
-        </div>
-      );
+        );
 
       const children = [
         React.createElement(
@@ -387,7 +373,9 @@ exports.decorateTerm = (Term, { React, notify }) => {
         if (this.state.showPicker) {
           children.unshift(
             <div style={styles.dialogContainer}>
+        <div style={styles.pickerContainer}>
               {pickers}
+        </div>
               <OkInk
                 onClick={a => this.setState({ showPicker: false })}
                 style={styles.okButton}
