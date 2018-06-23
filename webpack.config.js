@@ -26,7 +26,8 @@ module.exports = {
               presets: [
                 'react',
                 ['env', {'modules': false}],
-              ]
+              ],
+              "plugins": ["transform-object-rest-spread"]
             }
           }
         ]
