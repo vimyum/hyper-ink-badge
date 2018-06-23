@@ -141,13 +141,10 @@ exports.middleware = store => next => action => {
 };
 
 exports.reduceUI = (state, action) => {
-  console.log('receive action: %o', action.type);
   switch (action.type) {
     case 'UPDATE_COLOR':
-      console.log('%o is received', action.type);
       return state.set('colorState', action.payload.map(e => e.toLowerCase()));
     case 'UPDATE_TEXT':
-      console.log('%o is received', action.type);
       return state.set('textState', action.payload);
     default:
       return state;
@@ -197,8 +194,6 @@ exports.decorateTerm = (Term, { React, notify }) => {
 
     changeColorByTmpl() {
       this.requireRepaint();
-      console.log('set prevColors to %o', this.state.colors);
-      // this.prevColors = [...this.state.colors];
       const idx = this.state.tmplIdx;
       const newIdx = idx < colorTmpl.length - 1 ? idx + 1 : 0;
       this.prevColors = [...this.state.colors];
@@ -218,8 +213,6 @@ exports.decorateTerm = (Term, { React, notify }) => {
       if (!this.colorsOfTitle[title]) {
         // fix to title
         notify(`Ink is sticky to ${title}`, 'this is a body');
-        // console.log(`setPrevColors:%o`, this.state.colors);
-        // this.prevColors = [...this.state.colors];
         this.colorsOfTitle[title] = [...this.state.colors];
       } else {
         // unfix to title
@@ -244,8 +237,6 @@ exports.decorateTerm = (Term, { React, notify }) => {
     }
 
     componentDidMount() {
-      console.log('props* %o', this.props.uid);
-      console.log('XXX config is :%o', window.config.getConfig().hyperInktoon);
       const config = window.config.getConfig().hyperInktoon;
       if (!config) {
         return;
@@ -273,12 +264,10 @@ exports.decorateTerm = (Term, { React, notify }) => {
         const color = el.getAttribute('fill');
         if (color == from[0] || color == baseColor[0]) {
           el.setAttribute('fill', to[0]);
-          console.log('set to color-0');
         } else if (color == from[1] || color == baseColor[1]) {
           el.setAttribute('fill', to[1]);
-          console.log('set to color-1');
         } else {
-          console.log(
+          console.error(
             'NOT match to previous color: find: %o, from: %o, %o',
             color,
             from[0],
@@ -295,7 +284,6 @@ exports.decorateTerm = (Term, { React, notify }) => {
 
     componentWillReceiveProps(nextProps) {
       const title = nextProps.term ? nextProps.term.title : null;
-      console.log('nextProps %o', nextProps);
       if (title && this.colorsOfTitle[title]) {
         if (!this.isSameColor(this.state.colors, this.colorsOfTitle[title])) {
           console.log('set color by title(%o)', title);
@@ -310,12 +298,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
         this.setState({ colors: colorTmpl[this.state.tmplIdx] });
       }
 
-      console.log(
-        `need change color: %o`,
-        this.props.colorState !== nextProps.colorState
-      );
       if (this.props.colorState !== nextProps.colorState) {
-        console.log('XXXXXXXXX change colors XXXXXXXXXXX');
         this.requireRepaint();
         this.prevColors = [...this.state.colors];
         this.setState({ colors: nextProps.colorState });
@@ -333,10 +316,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
       if (!this.props.isTermActive) {
         return;
       }
-      console.log('componentDidUpdate(), props: %o', this.props);
       const { title } = this.props.term;
-      console.log(`title: ${title}(old: ${this.prevTitle})`);
-
       if (
         (this.colorsOfTitle[title] && title != this.prevTitle) ||
         (this.colorsOfTitle[this.prevTitle] && title != this.prevTitle)
@@ -353,7 +333,6 @@ exports.decorateTerm = (Term, { React, notify }) => {
         this.prevColors[idx] = this.state.colors[idx];
         const newColors = [...this.state.colors];
         newColors[idx] = color.hex;
-        console.log('COLOR PICKER IS CALLED: %o', color.hex);
         this.requireRepaint();
         this.setState({
           colors: newColors,
