@@ -59,6 +59,14 @@ const styles = {
     right: '0px',
     cursor: 'pointer',
   },
+  inkText: {
+    fontFamily: 'Paintball',
+    color: 'grey',
+    zIndex: 19,
+    position: 'fixed',
+    bottom: '36px',
+    right: '100px',
+  },
   okButton: {
     marginTop: '1.5em',
     marginRight: '4em',
@@ -169,6 +177,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
       this.prevTitle = '';
 
       this.state = {
+        text: '',
         colors: colorTmpl[0],
         tmplIdx: 0,
         showPicker: false,
@@ -311,6 +320,13 @@ exports.decorateTerm = (Term, { React, notify }) => {
         this.prevColors = [...this.state.colors];
         this.setState({ colors: nextProps.colorState });
       }
+      if (this.props.textState !== nextProps.textState) {
+        if (nextProps.textState === '-') {
+          this.setState({ text: ''});
+        } else {
+          this.setState({ text: nextProps.textState });
+        }
+      }
     }
 
     componentDidUpdate() {
@@ -402,6 +418,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
 
         children.unshift(
           <div onClick={this.onChangeColor.bind(this)} style={styles.img}>
+            <h1 style={styles.inkText}>{this.state.text}</h1>
             <InkSvg />
           </div>
         );
