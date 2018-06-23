@@ -91,7 +91,10 @@ exports.decorateConfig = config => {
       padding-bottom: 0.5em;
     };
     .inktypo {
-      color: red;
+      text-shadow: 1px 1px 0 #000,
+             -1px 1px 0 #000,
+             1px -1px 0 #000,
+             -1px -1px 0 #000;
       font-family: Paintball;
     }`,
   });
@@ -350,13 +353,13 @@ exports.decorateTerm = (Term, { React, notify }) => {
       const pickers = this.advancedPicker === true ?
         [0, 1].map(idx => 
           <div>
-            <h1 className={'inktypo color-label'}>{`Color${idx + 1}`}</h1>
+            <h1 className={'inktypo color-label'} style={{color: this.state.colors[idx]}}>{`Color${idx + 1}`}</h1>
             <ChromePicker key={`color${idx}`} disableAlpha={true} color={this.state.colors[idx]} onChangeComplete={this.selectColor(idx).bind(this)} />
           </div>
         ) :
         [0, 1].map(idx => 
           <div>
-            <h1 className={'inktypo color-label'}>{`Color${idx + 1}`}</h1>
+            <h1 className={'inktypo color-label'} style={{color: this.state.colors[idx]}}>{`Color${idx + 1}`}</h1>
             <CirclePicker key={`color${idx}`} color={this.state.colors[idx]} onChangeComplete={this.selectColor(idx).bind(this)} />
           </div>
         );
