@@ -57,6 +57,7 @@ const styles = {
     bottom: '25px',
     right: '0px',
     cursor: 'pointer',
+    backgroundColor: '#44B',
   },
   inkText: {
     fontFamily: 'Paintball',
@@ -83,15 +84,19 @@ const styles = {
 };
 
 exports.decorateConfig = config => {
-  const fontPath = path.join(__dirname, 'paintball_web.woff');
-  console.error(`here is ${fontPath}`);
+  const pluginConfig = config.hyperInktoon;
+
+  let fontSrc = 'http://fizzystack.web.fc2.com/paintball_web.woff';
+  if (pluginConfig && pluginConfig.fontPath) {
+    fontSrc = pluginConfig.fontPath;
+  }
   return Object.assign({}, config, {
     css: `
     ${config.css || ''}
     @font-face {
       font-family: Paintball;
       font-weight: bold;
-      src: url(http://fizzystack.web.fc2.com/paintball_web.woff);
+      src: url("${fontSrc}");
     }`,
   });
 };
@@ -183,7 +188,9 @@ exports.decorateTerm = (Term, { React, notify }) => {
       };
     }
     requireRepaint() {
-      const e = document.querySelectorAll('use[fill]');
+      const inkObj =document.querySelector('#inktoon-object');
+      const e =  inkObj.contentDocument.querySelectorAll('use[fill]');
+      // const e = document.querySelectorAll('use[fill]');
       if (e) {
         e.forEach(el => {
           el.removeAttribute('data-filled');
@@ -211,7 +218,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
       const { title } = term;
       if (!this.colorsOfTitle[title]) {
         // fix to title
-        notify(`Ink is sticky to ${title}`, 'this is a body');
+        notify('hyper-inktoon', `Ink color is sticky to ${title}`);
         this.colorsOfTitle[title] = [...this.state.colors];
       } else {
         // unfix to title
@@ -249,18 +256,30 @@ exports.decorateTerm = (Term, { React, notify }) => {
     }
 
     setInkColor({ from, to }) {
-      console.log('setInkColor is called.');
+      console.log('setInkColor is called. hoge');
 
-      const e = document.querySelectorAll('use[fill]');
-      if (!e) {
-        console.info('No use[fill].');
+      // const e = document.querySelectorAll('use[fill]');
+      // const obj = document.querySelector('#inktoon-object');
+      const inkObj = document.querySelector('#inktoon-object');
+      const inkObj2 = document.querySelector('object');
+      console.log('inkObj: %o', inkObj)
+      console.log('inkObj2: %o', inkObj2)
+      if (!inkObj.contentDocument) {
+        console.log('jogejoge')
+        return;
+      }
+      const e =  inkObj.contentDocument.querySelectorAll('use[fill]');
+      if (!e || e.length < 1) {
+        console.log('No use[fill].');
         return;
       }
       e.forEach(el => {
         if (el.getAttribute('data-filled') == 'true') {
+          console.log('data-filled true');
           return;
         }
         const color = el.getAttribute('fill');
+        console.log('get svg color: %o', color);
         if (color == from[0] || color == baseColor[0]) {
           el.setAttribute('fill', to[0]);
         } else if (color == from[1] || color == baseColor[1]) {
@@ -323,7 +342,9 @@ exports.decorateTerm = (Term, { React, notify }) => {
         console.log('Repaint is required.');
         this.requireRepaint();
       }
+      //setTimeout(() => this.setInkColor({ from: this.prevColors, to: this.state.colors }), 200);
       this.setInkColor({ from: this.prevColors, to: this.state.colors });
+      // this.setInkColor({ from: this.prevColors, to: this.state.colors });
       this.prevTitle = title;
     }
 
@@ -383,9 +404,11 @@ exports.decorateTerm = (Term, { React, notify }) => {
         }
 
         children.unshift(
-          <div onClick={this.onChangeColor.bind(this)} style={styles.img}>
+          <div style={styles.img} onClick={this.onChangeColor.bind(this)} >
             <h1 style={styles.inkText}>{this.state.text}</h1>
-            <InkSvg />
+            <object onLoad={() => {
+              this.setInkColor({ from: this.prevColors, to: this.state.colors });
+            }} id='inktoon-object' type="image/svg+xml" data="file:///tmp/sample.svg" width="256" height="256"></object>
           </div>
         );
       }
@@ -393,3 +416,8 @@ exports.decorateTerm = (Term, { React, notify }) => {
     }
   };
 };
+            // <InkSvg />
+            /*
+            <div style={{width: '64px', height: '64px', backgroundImage: 'url(file:///tmp/sample.svg)', 
+            'backgroundSize': '100% 100%', backgroundRepeat: 'no-repeat'}}></div>
+            */
