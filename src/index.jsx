@@ -179,7 +179,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
       this.prevTitle = '';
 
       this.state = {
-        text: '',
+        text: {},
         colors: colorTmpl[0],
         tmplIdx: 0,
         showPicker: false,
@@ -192,8 +192,11 @@ exports.decorateTerm = (Term, { React, notify }) => {
           config.baseColors[1].toLowerCase(),
         ];
       }
-  console.log('baseColors: %o', baseColors);
- 
+      if (config && config.templateColors) {
+        colorTmpl = config.templateColors.map(colors => {
+          return [colors[0].toLowerCase(), colors[1].toLowerCase()];
+        });
+      }
     }
     requireRepaint() {
       const inkObj = document.querySelector('#inktoon-object');
@@ -264,7 +267,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
     }
 
     setInkColor({ from, to }) {
-      console.log('setInkColor is called. hoge');
+      console.log('setInkColor is called.');
 
       const inkObj = document.querySelector('#inktoon-object');
       if (!inkObj.contentDocument) { // Object is not loaded yet.
@@ -303,6 +306,10 @@ exports.decorateTerm = (Term, { React, notify }) => {
     }
 
     componentWillReceiveProps(nextProps) {
+      if (!nextProps.isTermActive) {
+        return;
+      }
+
       const title = nextProps.term ? nextProps.term.title : null;
       if (title && this.colorsOfTitle[title]) {
         if (!this.isSameColor(this.state.colors, this.colorsOfTitle[title])) {
@@ -323,11 +330,17 @@ exports.decorateTerm = (Term, { React, notify }) => {
         this.prevColors = [...this.state.colors];
         this.setState({ colors: nextProps.colorState });
       }
+      console.log('nextProps.textState %o', nextProps.textState);
+      console.log('this.props.textState %o', this.props.textState);
+      console.log('nextProps.uid %o', nextProps.uid);
+      console.log('this.props.uid %o', this.props.uid);
+      console.log('this.state.text %o', this.state.text);
       if (this.props.textState !== nextProps.textState) {
+        console.log('TEXTSTATE: %o', nextProps.textState);
         if (nextProps.textState === '-') {
-          this.setState({ text: '' });
+          this.setState({ text: {...this.state.text, [nextProps.uid]: ''}});
         } else {
-          this.setState({ text: nextProps.textState });
+          this.setState({ text: {...this.state.text, [nextProps.uid]: nextProps.textState}});
         }
       }
     }
@@ -379,6 +392,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
       if (!isTermActive) {
         return null;
       }
+      console.log('RENDER uid : %o', uid);
       const config = window.config.getConfig().hyperInktoon;
       const imagePath = (config && config.imagePath) ? config.imagePath : path.join(__dirname, 'images', 'ink.svg');
 
@@ -439,7 +453,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
 
         children.unshift(
           <div style={styles.img} onClick={this.onChangeColor.bind(this)}>
-            <h1 style={styles.inkText}>{this.state.text}</h1>
+            <h1 style={styles.inkText}>{this.state.text[uid]}</h1>
             <object onLoad={this.onLoadObject.bind(this)}
               id="inktoon-object"
               type="image/svg+xml"
