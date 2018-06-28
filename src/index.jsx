@@ -179,7 +179,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
       this.prevTitle = '';
 
       this.state = {
-        text: {},
+        text: '',
         colors: colorTmpl[0],
         tmplIdx: 0,
         showPicker: false,
@@ -330,17 +330,12 @@ exports.decorateTerm = (Term, { React, notify }) => {
         this.prevColors = [...this.state.colors];
         this.setState({ colors: nextProps.colorState });
       }
-      console.log('nextProps.textState %o', nextProps.textState);
-      console.log('this.props.textState %o', this.props.textState);
-      console.log('nextProps.uid %o', nextProps.uid);
-      console.log('this.props.uid %o', this.props.uid);
-      console.log('this.state.text %o', this.state.text);
       if (this.props.textState !== nextProps.textState) {
         console.log('TEXTSTATE: %o', nextProps.textState);
         if (nextProps.textState === '-') {
-          this.setState({ text: {...this.state.text, [nextProps.uid]: ''}});
+          this.setState({text: ''});
         } else {
-          this.setState({ text: {...this.state.text, [nextProps.uid]: nextProps.textState}});
+          this.setState({text: nextProps.textState});
         }
       }
     }
@@ -357,9 +352,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
         console.log('Repaint is required.');
         this.requireRepaint();
       }
-      //setTimeout(() => this.setInkColor({ from: this.prevColors, to: this.state.colors }), 200);
       this.setInkColor({ from: this.prevColors, to: this.state.colors });
-      // this.setInkColor({ from: this.prevColors, to: this.state.colors });
       this.prevTitle = title;
     }
 
@@ -453,7 +446,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
 
         children.unshift(
           <div style={styles.img} onClick={this.onChangeColor.bind(this)}>
-            <h1 style={styles.inkText}>{this.state.text[uid]}</h1>
+            <h1 style={styles.inkText}>{this.state.text}</h1>
             <object onLoad={this.onLoadObject.bind(this)}
               id="inktoon-object"
               type="image/svg+xml"
