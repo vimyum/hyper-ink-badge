@@ -3,8 +3,8 @@ import { ChromePicker, CirclePicker } from 'react-color';
 const path = require('path');
 let inkCommand = 'inktoon';
 
-const baseColor = ['#010101', '#a0a0a0'];
-const colorTmpl = [
+let baseColors = ['#010101', '#a0a0a0'];
+let colorTmpl = [
   ['#f0297e' /* red */, '#12d812' /* green */],
   ['#f6cb45' /* yellow */, '#9734d9' /* purple */],
   ['#69d2e7' /* cyan */, '#dd417d' /* pink */],
@@ -83,12 +83,14 @@ const styles = {
 
 exports.decorateConfig = config => {
   const pluginConfig = config.hyperInktoon;
+  // TBD: validate config.
 
-  // let fontSrc = 'http://fizzystack.web.fc2.com/paintball_web.woff';
   let fontSrc = path.join(__dirname, 'fonts', 'paintball_web.woff');
   if (pluginConfig && pluginConfig.fontPath) {
     fontSrc = pluginConfig.fontPath;
   }
+
+ 
   return Object.assign({}, config, {
     css: `
     ${config.css || ''}
@@ -182,9 +184,16 @@ exports.decorateTerm = (Term, { React, notify }) => {
         tmplIdx: 0,
         showPicker: false,
       };
-      props.onActive = () => {
-        console.log('onActive is Called!!');
-      };
+
+      const config = window.config.getConfig().hyperInktoon;
+      if (config && config.baseColors) {
+        baseColors = [
+          config.baseColors[0].toLowerCase(),
+          config.baseColors[1].toLowerCase(),
+        ];
+      }
+  console.log('baseColors: %o', baseColors);
+ 
     }
     requireRepaint() {
       const inkObj = document.querySelector('#inktoon-object');
@@ -273,9 +282,9 @@ exports.decorateTerm = (Term, { React, notify }) => {
         }
         const color = el.getAttribute('fill');
         console.log('get svg color: %o', color);
-        if (color == from[0] || color == baseColor[0]) {
+        if (color == from[0] || color == baseColors[0]) {
           el.setAttribute('fill', to[0]);
-        } else if (color == from[1] || color == baseColor[1]) {
+        } else if (color == from[1] || color == baseColors[1]) {
           el.setAttribute('fill', to[1]);
         } else {
           console.error(
