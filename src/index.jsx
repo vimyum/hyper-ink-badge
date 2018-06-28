@@ -1,5 +1,4 @@
-import InkSvg from 'react-svg-loader!./ink_s.svg';
-import OkInk from 'react-svg-loader!./okink.svg';
+import OkInk from 'react-svg-loader!./ok.svg';
 import { ChromePicker, CirclePicker } from 'react-color';
 const path = require('path');
 let inkCommand = 'inktoon';
@@ -57,7 +56,6 @@ const styles = {
     bottom: '25px',
     right: '0px',
     cursor: 'pointer',
-    backgroundColor: '#44B',
   },
   inkText: {
     fontFamily: 'Paintball',
@@ -74,19 +72,20 @@ const styles = {
     marginLeft: 'auto',
   },
   pickerLabel: {
-      paddingBottom: '0.5em',
-      textShadow: `1px 1px 0 #000,
+    paddingBottom: '0.5em',
+    textShadow: `1px 1px 0 #000,
              -1px 1px 0 #000,
              1px -1px 0 #000,
              -1px -1px 0 #000`,
-      fontFamily: 'Paintball',
+    fontFamily: 'Paintball',
   },
 };
 
 exports.decorateConfig = config => {
   const pluginConfig = config.hyperInktoon;
 
-  let fontSrc = 'http://fizzystack.web.fc2.com/paintball_web.woff';
+  // let fontSrc = 'http://fizzystack.web.fc2.com/paintball_web.woff';
+  let fontSrc = path.join(__dirname, 'fonts', 'paintball_web.woff');
   if (pluginConfig && pluginConfig.fontPath) {
     fontSrc = pluginConfig.fontPath;
   }
@@ -188,8 +187,8 @@ exports.decorateTerm = (Term, { React, notify }) => {
       };
     }
     requireRepaint() {
-      const inkObj =document.querySelector('#inktoon-object');
-      const e =  inkObj.contentDocument.querySelectorAll('use[fill]');
+      const inkObj = document.querySelector('#inktoon-object');
+      const e = inkObj.contentDocument.querySelectorAll('use[fill]');
       // const e = document.querySelectorAll('use[fill]');
       if (e) {
         e.forEach(el => {
@@ -258,17 +257,11 @@ exports.decorateTerm = (Term, { React, notify }) => {
     setInkColor({ from, to }) {
       console.log('setInkColor is called. hoge');
 
-      // const e = document.querySelectorAll('use[fill]');
-      // const obj = document.querySelector('#inktoon-object');
       const inkObj = document.querySelector('#inktoon-object');
-      const inkObj2 = document.querySelector('object');
-      console.log('inkObj: %o', inkObj)
-      console.log('inkObj2: %o', inkObj2)
-      if (!inkObj.contentDocument) {
-        console.log('jogejoge')
+      if (!inkObj.contentDocument) { // Object is not loaded yet.
         return;
       }
-      const e =  inkObj.contentDocument.querySelectorAll('use[fill]');
+      const e = inkObj.contentDocument.querySelectorAll('use[fill]');
       if (!e || e.length < 1) {
         console.log('No use[fill].');
         return;
@@ -323,7 +316,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
       }
       if (this.props.textState !== nextProps.textState) {
         if (nextProps.textState === '-') {
-          this.setState({ text: ''});
+          this.setState({ text: '' });
         } else {
           this.setState({ text: nextProps.textState });
         }
@@ -360,25 +353,58 @@ exports.decorateTerm = (Term, { React, notify }) => {
       };
     }
 
+    onLoadObject() {
+      this.setInkColor({
+        from: this.prevColors,
+        to: this.state.colors,
+      });
+
+      const inkObj = document.querySelector('#inktoon-object');
+      const svg = inkObj.contentDocument.querySelector('svg');
+      svg.addEventListener('click', this.onChangeColor.bind(this));
+      svg.setAttribute('style', 'cursor: pointer');
+    }
+
     render() {
       const { uid, isTermActive, term } = this.props;
       if (isTermActive) {
         console.log('rendered: %o', this.props.uid);
       }
+      console.log(`file://${path.join(__dirname, 'sample.svg')}`);
 
-      const pickers = this.advancedPicker === true ?
-        [0, 1].map(idx => 
-          <div>
-            <h1 style={{...styles.pickerLabel, color: this.state.colors[idx]}}>{`Color${idx + 1}`}</h1>
-            <ChromePicker key={`color${idx}`} disableAlpha={true} color={this.state.colors[idx]} onChangeComplete={this.selectColor(idx).bind(this)} />
-          </div>
-        ) :
-        [0, 1].map(idx => 
-          <div>
-            <h1 style={{...styles.pickerLabel, color: this.state.colors[idx]}}>{`Color${idx + 1}`}</h1>
-            <CirclePicker key={`color${idx}`} color={this.state.colors[idx]} onChangeComplete={this.selectColor(idx).bind(this)} />
-          </div>
-        );
+      const pickers =
+        this.advancedPicker === true
+          ? [0, 1].map(idx => (
+              <div>
+                <h1
+                  style={{
+                    ...styles.pickerLabel,
+                    color: this.state.colors[idx],
+                  }}
+                >{`Color${idx + 1}`}</h1>
+                <ChromePicker
+                  key={`color${idx}`}
+                  disableAlpha={true}
+                  color={this.state.colors[idx]}
+                  onChangeComplete={this.selectColor(idx).bind(this)}
+                />
+              </div>
+            ))
+          : [0, 1].map(idx => (
+              <div>
+                <h1
+                  style={{
+                    ...styles.pickerLabel,
+                    color: this.state.colors[idx],
+                  }}
+                >{`Color${idx + 1}`}</h1>
+                <CirclePicker
+                  key={`color${idx}`}
+                  color={this.state.colors[idx]}
+                  onChangeComplete={this.selectColor(idx).bind(this)}
+                />
+              </div>
+            ));
 
       const children = [
         React.createElement(
@@ -392,9 +418,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
         if (this.state.showPicker) {
           children.unshift(
             <div style={styles.dialogContainer}>
-        <div style={styles.pickerContainer}>
-              {pickers}
-        </div>
+              <div style={styles.pickerContainer}>{pickers}</div>
               <OkInk
                 onClick={a => this.setState({ showPicker: false })}
                 style={styles.okButton}
@@ -404,11 +428,13 @@ exports.decorateTerm = (Term, { React, notify }) => {
         }
 
         children.unshift(
-          <div style={styles.img} onClick={this.onChangeColor.bind(this)} >
+          <div style={styles.img} onClick={this.onChangeColor.bind(this)}>
             <h1 style={styles.inkText}>{this.state.text}</h1>
-            <object onLoad={() => {
-              this.setInkColor({ from: this.prevColors, to: this.state.colors });
-            }} id='inktoon-object' type="image/svg+xml" data="file:///tmp/sample.svg" width="256" height="256"></object>
+            <object onLoad={this.onLoadObject.bind(this)}
+              id="inktoon-object"
+              type="image/svg+xml"
+              data={`file://${path.join(__dirname, 'images', 'ink.svg')}`}
+            />
           </div>
         );
       }
@@ -416,8 +442,3 @@ exports.decorateTerm = (Term, { React, notify }) => {
     }
   };
 };
-            // <InkSvg />
-            /*
-            <div style={{width: '64px', height: '64px', backgroundImage: 'url(file:///tmp/sample.svg)', 
-            'backgroundSize': '100% 100%', backgroundRepeat: 'no-repeat'}}></div>
-            */
