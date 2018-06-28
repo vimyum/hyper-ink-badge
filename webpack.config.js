@@ -2,6 +2,10 @@ module.exports = {
   mode: 'development',
   entry: './src/index.jsx',
   target: 'node',
+  node: {
+    __dirname: false,
+    __filename: false,
+  },
   output: {
     path: `${__dirname}`,
     filename: 'index.js',

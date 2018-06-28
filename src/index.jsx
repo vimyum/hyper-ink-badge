@@ -1,5 +1,4 @@
-import InkSvg from 'react-svg-loader!./ink_s.svg';
-import OkInk from 'react-svg-loader!./okink.svg';
+import OkInk from 'react-svg-loader!./ok.svg';
 import { ChromePicker, CirclePicker } from 'react-color';
 const path = require('path');
 let inkCommand = 'inktoon';
@@ -73,25 +72,30 @@ const styles = {
     marginLeft: 'auto',
   },
   pickerLabel: {
-      paddingBottom: '0.5em',
-      textShadow: `1px 1px 0 #000,
+    paddingBottom: '0.5em',
+    textShadow: `1px 1px 0 #000,
              -1px 1px 0 #000,
              1px -1px 0 #000,
              -1px -1px 0 #000`,
-      fontFamily: 'Paintball',
+    fontFamily: 'Paintball',
   },
 };
 
 exports.decorateConfig = config => {
-  const fontPath = path.join(__dirname, 'paintball_web.woff');
-  console.error(`here is ${fontPath}`);
+  const pluginConfig = config.hyperInktoon;
+
+  // let fontSrc = 'http://fizzystack.web.fc2.com/paintball_web.woff';
+  let fontSrc = path.join(__dirname, 'fonts', 'paintball_web.woff');
+  if (pluginConfig && pluginConfig.fontPath) {
+    fontSrc = pluginConfig.fontPath;
+  }
   return Object.assign({}, config, {
     css: `
     ${config.css || ''}
     @font-face {
       font-family: Paintball;
       font-weight: bold;
-      src: url(http://fizzystack.web.fc2.com/paintball_web.woff);
+      src: url("${fontSrc}");
     }`,
   });
 };
@@ -183,7 +187,9 @@ exports.decorateTerm = (Term, { React, notify }) => {
       };
     }
     requireRepaint() {
-      const e = document.querySelectorAll('use[fill]');
+      const inkObj = document.querySelector('#inktoon-object');
+      const e = inkObj.contentDocument.querySelectorAll('use[fill]');
+      // const e = document.querySelectorAll('use[fill]');
       if (e) {
         e.forEach(el => {
           el.removeAttribute('data-filled');
@@ -211,7 +217,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
       const { title } = term;
       if (!this.colorsOfTitle[title]) {
         // fix to title
-        notify(`Ink is sticky to ${title}`, 'this is a body');
+        notify('hyper-inktoon', `Ink color is sticky to ${title}`);
         this.colorsOfTitle[title] = [...this.state.colors];
       } else {
         // unfix to title
@@ -249,18 +255,24 @@ exports.decorateTerm = (Term, { React, notify }) => {
     }
 
     setInkColor({ from, to }) {
-      console.log('setInkColor is called.');
+      console.log('setInkColor is called. hoge');
 
-      const e = document.querySelectorAll('use[fill]');
-      if (!e) {
-        console.info('No use[fill].');
+      const inkObj = document.querySelector('#inktoon-object');
+      if (!inkObj.contentDocument) { // Object is not loaded yet.
+        return;
+      }
+      const e = inkObj.contentDocument.querySelectorAll('use[fill]');
+      if (!e || e.length < 1) {
+        console.log('No use[fill].');
         return;
       }
       e.forEach(el => {
         if (el.getAttribute('data-filled') == 'true') {
+          console.log('data-filled true');
           return;
         }
         const color = el.getAttribute('fill');
+        console.log('get svg color: %o', color);
         if (color == from[0] || color == baseColor[0]) {
           el.setAttribute('fill', to[0]);
         } else if (color == from[1] || color == baseColor[1]) {
@@ -304,7 +316,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
       }
       if (this.props.textState !== nextProps.textState) {
         if (nextProps.textState === '-') {
-          this.setState({ text: ''});
+          this.setState({ text: '' });
         } else {
           this.setState({ text: nextProps.textState });
         }
@@ -323,7 +335,9 @@ exports.decorateTerm = (Term, { React, notify }) => {
         console.log('Repaint is required.');
         this.requireRepaint();
       }
+      //setTimeout(() => this.setInkColor({ from: this.prevColors, to: this.state.colors }), 200);
       this.setInkColor({ from: this.prevColors, to: this.state.colors });
+      // this.setInkColor({ from: this.prevColors, to: this.state.colors });
       this.prevTitle = title;
     }
 
@@ -339,25 +353,58 @@ exports.decorateTerm = (Term, { React, notify }) => {
       };
     }
 
+    onLoadObject() {
+      this.setInkColor({
+        from: this.prevColors,
+        to: this.state.colors,
+      });
+
+      const inkObj = document.querySelector('#inktoon-object');
+      const svg = inkObj.contentDocument.querySelector('svg');
+      svg.addEventListener('click', this.onChangeColor.bind(this));
+      svg.setAttribute('style', 'cursor: pointer');
+    }
+
     render() {
       const { uid, isTermActive, term } = this.props;
       if (isTermActive) {
         console.log('rendered: %o', this.props.uid);
       }
+      console.log(`file://${path.join(__dirname, 'sample.svg')}`);
 
-      const pickers = this.advancedPicker === true ?
-        [0, 1].map(idx => 
-          <div>
-            <h1 style={{...styles.pickerLabel, color: this.state.colors[idx]}}>{`Color${idx + 1}`}</h1>
-            <ChromePicker key={`color${idx}`} disableAlpha={true} color={this.state.colors[idx]} onChangeComplete={this.selectColor(idx).bind(this)} />
-          </div>
-        ) :
-        [0, 1].map(idx => 
-          <div>
-            <h1 style={{...styles.pickerLabel, color: this.state.colors[idx]}}>{`Color${idx + 1}`}</h1>
-            <CirclePicker key={`color${idx}`} color={this.state.colors[idx]} onChangeComplete={this.selectColor(idx).bind(this)} />
-          </div>
-        );
+      const pickers =
+        this.advancedPicker === true
+          ? [0, 1].map(idx => (
+              <div>
+                <h1
+                  style={{
+                    ...styles.pickerLabel,
+                    color: this.state.colors[idx],
+                  }}
+                >{`Color${idx + 1}`}</h1>
+                <ChromePicker
+                  key={`color${idx}`}
+                  disableAlpha={true}
+                  color={this.state.colors[idx]}
+                  onChangeComplete={this.selectColor(idx).bind(this)}
+                />
+              </div>
+            ))
+          : [0, 1].map(idx => (
+              <div>
+                <h1
+                  style={{
+                    ...styles.pickerLabel,
+                    color: this.state.colors[idx],
+                  }}
+                >{`Color${idx + 1}`}</h1>
+                <CirclePicker
+                  key={`color${idx}`}
+                  color={this.state.colors[idx]}
+                  onChangeComplete={this.selectColor(idx).bind(this)}
+                />
+              </div>
+            ));
 
       const children = [
         React.createElement(
@@ -371,9 +418,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
         if (this.state.showPicker) {
           children.unshift(
             <div style={styles.dialogContainer}>
-        <div style={styles.pickerContainer}>
-              {pickers}
-        </div>
+              <div style={styles.pickerContainer}>{pickers}</div>
               <OkInk
                 onClick={a => this.setState({ showPicker: false })}
                 style={styles.okButton}
@@ -383,9 +428,13 @@ exports.decorateTerm = (Term, { React, notify }) => {
         }
 
         children.unshift(
-          <div onClick={this.onChangeColor.bind(this)} style={styles.img}>
+          <div style={styles.img} onClick={this.onChangeColor.bind(this)}>
             <h1 style={styles.inkText}>{this.state.text}</h1>
-            <InkSvg />
+            <object onLoad={this.onLoadObject.bind(this)}
+              id="inktoon-object"
+              type="image/svg+xml"
+              data={`file://${path.join(__dirname, 'images', 'ink.svg')}`}
+            />
           </div>
         );
       }
