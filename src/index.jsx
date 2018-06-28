@@ -367,10 +367,11 @@ exports.decorateTerm = (Term, { React, notify }) => {
 
     render() {
       const { uid, isTermActive, term } = this.props;
-      if (isTermActive) {
-        console.log('rendered: %o', this.props.uid);
+      if (!isTermActive) {
+        return null;
       }
-      console.log(`file://${path.join(__dirname, 'sample.svg')}`);
+      const config = window.config.getConfig().hyperInktoon;
+      const imagePath = (config && config.imagePath) ? config.imagePath : path.join(__dirname, 'images', 'ink.svg');
 
       const pickers =
         this.advancedPicker === true
@@ -433,7 +434,7 @@ exports.decorateTerm = (Term, { React, notify }) => {
             <object onLoad={this.onLoadObject.bind(this)}
               id="inktoon-object"
               type="image/svg+xml"
-              data={`file://${path.join(__dirname, 'images', 'ink.svg')}`}
+              data={`file://${imagePath}`}
             />
           </div>
         );
