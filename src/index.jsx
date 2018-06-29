@@ -97,7 +97,7 @@ exports.decorateConfig = config => {
     @font-face {
       font-family: Paintball;
       font-weight: bold;
-      src: url("${fontSrc}");
+      src: url("file://${fontSrc}");
     }`,
   });
 };
