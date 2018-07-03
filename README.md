@@ -32,7 +32,7 @@ $ 'ink-badge Hello World
 ### Fix the color to 'Tab title'
 * Click with 'Shift' key fixes ink color to current *tab title*. 
 
-[fixtotitle](https://user-images.githubusercontent.com/1744970/42232809-97dfee7e-7f2a-11e8-8c1c-5fcf213703a5.gif)
+![fixtotitle](https://user-images.githubusercontent.com/1744970/42232809-97dfee7e-7f2a-11e8-8c1c-5fcf213703a5.gif)
 
 
 ## Install
