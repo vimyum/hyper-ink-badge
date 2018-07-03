@@ -1,7 +1,7 @@
 import OkInk from 'react-svg-loader!./ok.svg';
 import { ChromePicker, CirclePicker } from 'react-color';
 const path = require('path');
-let inkCommand = 'inktoon';
+let inkCommand = 'ink-badge';
 
 let baseColors = ['#010101', '#a0a0a0'];
 let colorTmpl = [
