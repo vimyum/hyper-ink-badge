@@ -82,7 +82,7 @@ const styles = {
 };
 
 exports.decorateConfig = config => {
-  const pluginConfig = config.hyperInktoon;
+  const pluginConfig = config.hyperInkBadge;
   // TBD: validate config.
 
   let fontSrc = path.join(__dirname, 'fonts', 'paintball_web.woff');
