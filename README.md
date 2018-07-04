@@ -106,8 +106,11 @@ fontPath: 'file:///tmp/myfont.woff'
 
 ### imagePath & baseColors
 You can use your favarite SVG image instead of default ink image. Besides specifing *imagePath*, you have to set the *baseColors* value which indicates the changeable colors.
-        imagePath: 'file:///tmp/slime.svg',
-        baseColors: ['#0096d9', '#e5004a'],
+
+```
+imagePath: 'file:///tmp/slime.svg',
+baseColors: ['#0096d9', '#e5004a'],
+```
         
 ![2018-07-04 18 53 02](https://user-images.githubusercontent.com/1744970/42270417-c75ea6cc-7fbb-11e8-9379-f4499980869c.gif)
 
