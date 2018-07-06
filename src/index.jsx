@@ -109,7 +109,6 @@ exports.decorateConfig = config => {
 
 const getColorPair = str => {
   const colors = str.replace(/\s+/g, '').split(',');
-  console.log(`getColorPair: %o`, colors);
   if (colors.length !== 2) {
     return null;
   }
@@ -133,13 +132,11 @@ exports.middleware = store => next => action => {
     }
     const colorPair = getColorPair(command);
     if (colorPair) {
-      console.log('commannd UPDATE_COLOR: %o', colorPair);
       store.dispatch({
         type: 'UPDATE_COLOR',
         payload: colorPair,
       });
     } else {
-      console.log('command UPDATE_TEXT: %o', command);
       store.dispatch({
         type: 'UPDATE_TEXT',
         payload: command,
@@ -228,7 +225,6 @@ exports.decorateTerm = (Term, { React, notify }) => {
     fixColorToTitle() {
       const { term } = this.props;
       if (!term) {
-        console.error('term is undefined.');
         return;
       }
       const { title } = term;
@@ -247,7 +243,6 @@ exports.decorateTerm = (Term, { React, notify }) => {
       if (!term) {
         return;
       }
-      console.log('%o', event);
 
       if (event.shiftKey) {
         this.fixColorToTitle();
@@ -272,8 +267,6 @@ exports.decorateTerm = (Term, { React, notify }) => {
     }
 
     setInkColor({ from, to }) {
-      console.log('setInkColor is called.');
-
       const inkObj = document.querySelector('#inktoon-object');
       if (!inkObj.contentDocument) {
         // Object is not loaded yet.
@@ -281,16 +274,13 @@ exports.decorateTerm = (Term, { React, notify }) => {
       }
       const e = inkObj.contentDocument.querySelectorAll('use[fill]');
       if (!e || e.length < 1) {
-        console.log('No use[fill].');
         return;
       }
       e.forEach(el => {
         if (el.getAttribute('data-filled') == 'true') {
-          console.log('data-filled true');
           return;
         }
         const color = el.getAttribute('fill');
-        console.log('get svg color: %o', color);
         if (color == from[0] || color == baseColors[0]) {
           el.setAttribute('fill', to[0]);
         } else if (color == from[1] || color == baseColors[1]) {
@@ -319,14 +309,12 @@ exports.decorateTerm = (Term, { React, notify }) => {
       const title = nextProps.term ? nextProps.term.title : null;
       if (title && this.colorsOfTitle[title]) {
         if (!this.isSameColor(this.state.colors, this.colorsOfTitle[title])) {
-          console.log('set color by title(%o)', title);
           this.prevColors = [...this.state.colors];
           this.setState({
             colors: this.colorsOfTitle[title],
           });
         }
       } else if (this.colorsOfTitle[this.prevTitle]) {
-        console.log('revert color by title(%o)', this.prevTitle);
         this.prevColors = [...this.state.colors];
         this.setState({ colors: colorTmpl[this.state.tmplIdx] });
       }
@@ -337,7 +325,6 @@ exports.decorateTerm = (Term, { React, notify }) => {
         this.setState({ colors: nextProps.colorState });
       }
       if (this.props.textState !== nextProps.textState) {
-        console.log('TEXTSTATE: %o', nextProps.textState);
         if (nextProps.textState === '-') {
           this.setState({ text: '' });
         } else {
@@ -355,7 +342,6 @@ exports.decorateTerm = (Term, { React, notify }) => {
         (this.colorsOfTitle[title] && title != this.prevTitle) ||
         (this.colorsOfTitle[this.prevTitle] && title != this.prevTitle)
       ) {
-        console.log('Repaint is required.');
         this.requireRepaint();
       }
       this.setInkColor({ from: this.prevColors, to: this.state.colors });
