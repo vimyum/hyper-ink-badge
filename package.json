@@ -1,8 +1,8 @@
 {
   "name": "hyper-inktoon",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "main": "index.js",
-  "author": "Sagara",
+  "author": "sagara",
   "license": "MIT",
   "scripts": {
     "build": "babel ./src/index.jsx --watch --out-file ./index.js",
