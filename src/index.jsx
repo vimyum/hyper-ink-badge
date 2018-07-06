@@ -15,13 +15,19 @@ let colorTmpl = [
 // below detection command reffered from hyper-power
 const detectCommand = cmd => data => {
   const patterns = [
-    `${cmd} (.+): command not found`,
-    `command not found: ${cmd} (.+)`,
-    `Unknown command '${cmd} (.+)'`,
-    `'${cmd} (.+)' is not recognized.*`,
+    `command not found: ${cmd} (.+)`, //zsh
+    `${cmd} (.+): command not found`, // bash
+    `${cmd} (.+): Command not found.`, // csh
+    `Unknown command '${cmd} (.+)'`, // ?
+    `'${cmd} (.+)' is not recognized.*`, // ?
   ];
+  const patternNum = patterns.length;
   const reg = new RegExp(patterns.join('|'));
-  return data.match(reg);
+  const matched = data.match(reg);
+  if (!matched || matched.length <= 1) {
+    return null;
+  }
+  return matched.slice(1, patternNum).find(e => e); // return not null.
 };
 
 const styles = {
@@ -85,19 +91,18 @@ exports.decorateConfig = config => {
   const pluginConfig = config.hyperInkBadge;
   // TBD: validate config.
 
-  let fontSrc = path.join(__dirname, 'fonts', 'paintball_web.woff');
+  let fontSrc = 'file://' + path.join(__dirname, 'fonts', 'paintball_web.woff');
   if (pluginConfig && pluginConfig.fontPath) {
     fontSrc = pluginConfig.fontPath;
   }
 
- 
   return Object.assign({}, config, {
     css: `
     ${config.css || ''}
     @font-face {
       font-family: Paintball;
       font-weight: bold;
-      src: url("file://${fontSrc}");
+      src: url("${fontSrc}");
     }`,
   });
 };
@@ -126,7 +131,7 @@ exports.middleware = store => next => action => {
       next(action);
       return;
     }
-    const colorPair = getColorPair(command[2]);
+    const colorPair = getColorPair(command);
     if (colorPair) {
       console.log('commannd UPDATE_COLOR: %o', colorPair);
       store.dispatch({
@@ -134,10 +139,10 @@ exports.middleware = store => next => action => {
         payload: colorPair,
       });
     } else {
-      console.log('command UPDATE_TEXT: %o', command[2]);
+      console.log('command UPDATE_TEXT: %o', command);
       store.dispatch({
         type: 'UPDATE_TEXT',
-        payload: command[2],
+        payload: command,
       });
     }
     return; // surpress show shell error message..
@@ -270,7 +275,8 @@ exports.decorateTerm = (Term, { React, notify }) => {
       console.log('setInkColor is called.');
 
       const inkObj = document.querySelector('#inktoon-object');
-      if (!inkObj.contentDocument) { // Object is not loaded yet.
+      if (!inkObj.contentDocument) {
+        // Object is not loaded yet.
         return;
       }
       const e = inkObj.contentDocument.querySelectorAll('use[fill]');
@@ -333,9 +339,9 @@ exports.decorateTerm = (Term, { React, notify }) => {
       if (this.props.textState !== nextProps.textState) {
         console.log('TEXTSTATE: %o', nextProps.textState);
         if (nextProps.textState === '-') {
-          this.setState({text: ''});
+          this.setState({ text: '' });
         } else {
-          this.setState({text: nextProps.textState});
+          this.setState({ text: nextProps.textState });
         }
       }
     }
@@ -385,9 +391,11 @@ exports.decorateTerm = (Term, { React, notify }) => {
       if (!isTermActive) {
         return null;
       }
-      console.log('RENDER uid : %o', uid);
       const config = window.config.getConfig().hyperInktoon;
-      const imagePath = (config && config.imagePath) ? config.imagePath : path.join(__dirname, 'images', 'ink.svg');
+      const imagePath =
+        config && config.imagePath
+          ? config.imagePath
+          : 'file://' + path.join(__dirname, 'images', 'ink.svg');
 
       const pickers =
         this.advancedPicker === true
@@ -447,10 +455,11 @@ exports.decorateTerm = (Term, { React, notify }) => {
         children.unshift(
           <div style={styles.img} onClick={this.onChangeColor.bind(this)}>
             <h1 style={styles.inkText}>{this.state.text}</h1>
-            <object onLoad={this.onLoadObject.bind(this)}
+            <object
+              onLoad={this.onLoadObject.bind(this)}
               id="inktoon-object"
               type="image/svg+xml"
-              data={`file://${imagePath}`}
+              data={imagePath}
             />
           </div>
         );
