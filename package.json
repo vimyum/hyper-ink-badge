@@ -29,7 +29,6 @@
     ]
   },
   "dependencies": {
-    "react-color": "^2.14.1",
-    "snapsvg": "^0.5.1"
+    "react-color": "^2.14.1"
   }
 }
