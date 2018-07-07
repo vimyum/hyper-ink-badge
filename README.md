@@ -35,18 +35,19 @@ $ 'ink-badge Hello World
 ![fixtotitle](https://user-images.githubusercontent.com/1744970/42232809-97dfee7e-7f2a-11e8-8c1c-5fcf213703a5.gif)
 
 ## Install
- 1. get source code from github, and bundle it with webpack as below.
+
+You can install `hyper-ink-badge` with `hyper` command or editing `~/.hyper.js`.
+
+ 1. Use `hyper` command.
  
 ```bash
-$ cd ~/.hyper_plugins/local
-$ git clone
-$ yarn
-$ yarn webpack
+$ hyper install hyper-ink-badge
 ```
- 2. Configure the `localPlugins` parameter in `~/.hyper.js` as bellow.
- 
-```
-   localPlugins: ["hyper-ink-badge"],
+
+ 2. Or, edit `~/.hyper.js` and add "hyper-ink-badge" to the `plugins` array as bellow.
+
+```js
+   plugins: [ "hyper-ink-badge" ],
 ```
 
 ## Configuration.
