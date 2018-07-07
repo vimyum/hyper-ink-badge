@@ -8,32 +8,6 @@ This plugin is inspired by [Badges of iTerm2](https://www.iterm2.com/documentati
 
 ![overview](https://user-images.githubusercontent.com/1744970/42226057-ec5f44fc-7f18-11e8-8a7c-861ee3f1a2d0.gif)
 
-## Features & Demo
-
-### Change the color
-You can change color of ink via GUI or CLI.
- * GUI: Just click the *badge*.
- * CLI: Input quoted *ink-badge* command with color code like below.
-```
-$'ink-badge #5FA, #3B3'
-```
-![chagecolor](https://user-images.githubusercontent.com/1744970/42226058-ec8a56f6-7f18-11e8-978c-f96aca2c3f3e.gif)
-
- * Click the *badge* with 'command' key then you can use color picker.
-
-![colorpicker](https://user-images.githubusercontent.com/1744970/42232280-e6a7c2ea-7f28-11e8-998e-4bb3a0af271a.gif)
-
-### Set text
-* Input quoted *ink-badge* command with text like below.
-```bash
-$ 'ink-badge Hello World
-```
-
-### Fix the color to 'Tab title'
-* Click with 'Shift' key then you can fixe current ink color to current *tab title*. 
-
-![fixtotitle](https://user-images.githubusercontent.com/1744970/42232809-97dfee7e-7f2a-11e8-8c1c-5fcf213703a5.gif)
-
 ## Install
 
 You can install `hyper-ink-badge` with `hyper` command or editing `~/.hyper.js`.
@@ -49,6 +23,35 @@ $ hyper install hyper-ink-badge
 ```js
    plugins: [ "hyper-ink-badge" ],
 ```
+
+## Features & Demo
+
+### Change the color
+You can change color of badge via GUI or CLI.
+ 1. GUI: Just click the *badge*, and colors are changed into new one selected from the template.
+ 2. CLI: Specify color codes with quoted *ink-badge* command as below.
+
+```
+$'ink-badge #5FA, #3B3'
+```
+
+![chagecolor](https://user-images.githubusercontent.com/1744970/42226058-ec8a56f6-7f18-11e8-978c-f96aca2c3f3e.gif)
+
+ * Hold down the *command key* and click the *badge* to open the color picker.
+
+![colorpicker](https://user-images.githubusercontent.com/1744970/42232280-e6a7c2ea-7f28-11e8-998e-4bb3a0af271a.gif)
+
+### Set text
+* Use quoted *ink-badge* command with some text as below.
+
+```bash
+$ 'ink-badge Hello World'
+```
+
+### Fix the color to 'Tab title'
+* Hold down the *shift key* and click the *badge* to fixe current ink color to current *tab title*. 
+
+![fixtotitle](https://user-images.githubusercontent.com/1744970/42232809-97dfee7e-7f2a-11e8-8c1c-5fcf213703a5.gif)
 
 ## Configuration.
 
