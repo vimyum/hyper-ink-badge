@@ -10,7 +10,7 @@ This plugin is inspired by [Badges of iTerm2](https://www.iterm2.com/documentati
 
 ## Install
 
-You can install `hyper-ink-badge` with `hyper` command or editing `~/.hyper.js`.
+You can install `hyper-ink-badge` by `hyper` command or editing `~/.hyper.js`.
 
  1. Use `hyper` command.
  
@@ -49,16 +49,18 @@ $ 'ink-badge Hello World'
 ```
 
 ### Fix the color to 'Tab title'
-* Hold down the *shift key* and click the *badge* to fixe current ink color to current *tab title*. 
+* Hold down the *shift key* and click the *badge* to fix current badge to current *tab title*. 
 
 ![fixtotitle](https://user-images.githubusercontent.com/1744970/42232809-97dfee7e-7f2a-11e8-8c1c-5fcf213703a5.gif)
 
 ## Configuration.
 
+Edit `~/.hyper.js` and add hyperInkBadge object in config section as bellow.
+
 ```js
 module.exports = {
   config: {
-    hyperInktoon: {
+    hyperInkBadge: {
         command: 'ink',
         templateColors: [
             ['#e78a48', '#ffffff'], 
