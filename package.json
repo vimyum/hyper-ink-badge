@@ -1,18 +1,20 @@
 {
   "name": "hyper-ink-badge",
+  "description": "Plugin for Hyper terminal which shows a session budge.",
   "version": "1.0.2",
-  "main": "index.js",
   "author": "sagara",
-  "license": "MIT",
-  "keywords": [
-    "hyper",
-    "hyper-plugin",
-    "hyperterm",
-    "hyper-ink-badge"
-  ],
-  "scripts": {
-    "build": "babel ./src/index.jsx --watch --out-file ./index.js",
-    "format": "prettier --write --single-quote --trailing-comma es5 ./src/index.jsx"
+  "babel": {
+    "presets": [
+      "react"
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/vimyum/hyper-ink-badge",
+    "email": "vimyum@gmail.com"
+  },
+  "dependencies": {
+    "react": "^16.4.1",
+    "react-color": "^2.14.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -26,15 +28,26 @@
     "react-svg-loader": "^2.1.0",
     "svg-inline-loader": "^0.8.0",
     "svg-react-loader": "^0.4.5",
-    "webpack": "^4.11.1",
+    "webpack": "^4.16.1",
     "webpack-cli": "^3.0.3"
   },
-  "babel": {
-    "presets": [
-      "react"
-    ]
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "hyper",
+    "hyper-ink-badge",
+    "hyper-plugin",
+    "hyperterm"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vimyum/hyper-ink-badge"
   },
-  "dependencies": {
-    "react-color": "^2.14.1"
+  "scripts": {
+    "build": "babel ./src/index.jsx --watch --out-file ./index.js",
+    "format": "prettier --write --single-quote --trailing-comma es5 ./src/index.jsx"
   }
 }
