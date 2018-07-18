@@ -4,6 +4,12 @@
   "main": "index.js",
   "author": "sagara",
   "license": "MIT",
+  "keywords": [
+    "hyper",
+    "hyper-plugin",
+    "hyperterm",
+    "hyper-ink-badge"
+  ],
   "scripts": {
     "build": "babel ./src/index.jsx --watch --out-file ./index.js",
     "format": "prettier --write --single-quote --trailing-comma es5 ./src/index.jsx"

@@ -3,3 +3,4 @@ node_modules/
 dist/
 _fonts/
 yarn-error.log
+.*swp

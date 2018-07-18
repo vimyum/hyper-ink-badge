@@ -55,7 +55,7 @@ $ 'ink-badge Hello World'
 
 ## Configuration.
 
-Edit `~/.hyper.js` and add hyperInkBadge object in config section as bellow.
+Edit `~/.hyper.js` and add `hyperInkBadge` object in config section as bellow.
 
 ```js
 module.exports = {
