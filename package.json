@@ -32,7 +32,10 @@
     "webpack-cli": "^3.0.3"
   },
   "files": [
-    "index.js"
+    "index.js",
+    "images",
+    "fonts",
+    "src"
   ],
   "keywords": [
     "hyper",
