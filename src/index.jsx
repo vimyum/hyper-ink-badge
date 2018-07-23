@@ -92,6 +92,9 @@ exports.decorateConfig = config => {
   // TBD: validate config.
 
   let fontSrc = 'file://' + path.join(__dirname, 'fonts', 'paintball_web.woff');
+  if (process.platform === 'win32') {
+      fontSrc = fontSrc.replace(/\\/g, '/');
+  }
   if (pluginConfig && pluginConfig.fontPath) {
     fontSrc = pluginConfig.fontPath;
   }
