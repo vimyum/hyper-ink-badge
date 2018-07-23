@@ -1,0 +1,7 @@
+{
+    "name": "hyper-ink-badge",
+    "description": "Hyper plugin: An ink badge of which colors indicate the session.",
+    "type": "plugin",
+    "preview": "https://github.com/vimyum/hyper-ink-badge/blob/master/screenshots/inkBadge600x400_low.gif",
+    "dateAdded": "1532360013773"
+}
