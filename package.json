@@ -50,7 +50,7 @@
     "url": "https://github.com/vimyum/hyper-ink-badge"
   },
   "scripts": {
-    "build": "babel ./src/index.jsx --watch --out-file ./index.js",
+    "build": "webpack",
     "format": "prettier --write --single-quote --trailing-comma es5 ./src/index.jsx"
   }
 }
