@@ -249,7 +249,8 @@ exports.decorateTerm = (Term, { React, notify }) => {
 
       if (event.shiftKey) {
         this.fixColorToTitle();
-      } else if (event.metaKey) {
+      } else if ((event.ctrlKey && !event.metaKey) ||
+          (!event.ctrlKey && event.metaKey)) {
         this.setState({ showPicker: true });
       } else {
         this.changeColorByTmpl();
