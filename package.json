@@ -1,7 +1,7 @@
 {
   "name": "hyper-ink-badge",
   "description": "Plugin for Hyper terminal which shows a session budge.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "author": "sagara",
   "babel": {
     "presets": [
