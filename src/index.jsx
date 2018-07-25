@@ -93,7 +93,7 @@ exports.decorateConfig = config => {
 
   let fontSrc = 'file://' + path.join(__dirname, 'fonts', 'paintball_web.woff');
   if (process.platform === 'win32') {
-      fontSrc = fontSrc.replace(/\\/g, '/');
+    fontSrc = fontSrc.replace(/\\/g, '/');
   }
   if (pluginConfig && pluginConfig.fontPath) {
     fontSrc = pluginConfig.fontPath;
@@ -249,8 +249,10 @@ exports.decorateTerm = (Term, { React, notify }) => {
 
       if (event.shiftKey) {
         this.fixColorToTitle();
-      } else if ((event.ctrlKey && !event.metaKey) ||
-          (!event.ctrlKey && event.metaKey)) {
+      } else if (
+        (event.ctrlKey && !event.metaKey) ||
+        (!event.ctrlKey && event.metaKey)
+      ) {
         this.setState({ showPicker: true });
       } else {
         this.changeColorByTmpl();
@@ -378,49 +380,6 @@ exports.decorateTerm = (Term, { React, notify }) => {
 
     render() {
       const { uid, isTermActive, term } = this.props;
-      if (!isTermActive) {
-        return null;
-      }
-      const config = window.config.getConfig().hyperInktoon;
-      const imagePath =
-        config && config.imagePath
-          ? config.imagePath
-          : 'file://' + path.join(__dirname, 'images', 'ink.svg');
-
-      const pickers =
-        this.advancedPicker === true
-          ? [0, 1].map(idx => (
-              <div>
-                <h1
-                  style={{
-                    ...styles.pickerLabel,
-                    color: this.state.colors[idx],
-                  }}
-                >{`Color${idx + 1}`}</h1>
-                <ChromePicker
-                  key={`color${idx}`}
-                  disableAlpha={true}
-                  color={this.state.colors[idx]}
-                  onChangeComplete={this.selectColor(idx).bind(this)}
-                />
-              </div>
-            ))
-          : [0, 1].map(idx => (
-              <div>
-                <h1
-                  style={{
-                    ...styles.pickerLabel,
-                    color: this.state.colors[idx],
-                  }}
-                >{`Color${idx + 1}`}</h1>
-                <CirclePicker
-                  key={`color${idx}`}
-                  color={this.state.colors[idx]}
-                  onChangeComplete={this.selectColor(idx).bind(this)}
-                />
-              </div>
-            ));
-
       const children = [
         React.createElement(
           Term,
@@ -429,7 +388,48 @@ exports.decorateTerm = (Term, { React, notify }) => {
           })
         ),
       ];
+
       if (isTermActive) {
+        const config = window.config.getConfig().hyperInktoon;
+        const imagePath =
+          config && config.imagePath
+            ? config.imagePath
+            : 'file://' + path.join(__dirname, 'images', 'ink.svg');
+
+        const pickers =
+          this.advancedPicker === true
+            ? [0, 1].map(idx => (
+                <div>
+                  <h1
+                    style={{
+                      ...styles.pickerLabel,
+                      color: this.state.colors[idx],
+                    }}
+                  >{`Color${idx + 1}`}</h1>
+                  <ChromePicker
+                    key={`color${idx}`}
+                    disableAlpha={true}
+                    color={this.state.colors[idx]}
+                    onChangeComplete={this.selectColor(idx).bind(this)}
+                  />
+                </div>
+              ))
+            : [0, 1].map(idx => (
+                <div>
+                  <h1
+                    style={{
+                      ...styles.pickerLabel,
+                      color: this.state.colors[idx],
+                    }}
+                  >{`Color${idx + 1}`}</h1>
+                  <CirclePicker
+                    key={`color${idx}`}
+                    color={this.state.colors[idx]}
+                    onChangeComplete={this.selectColor(idx).bind(this)}
+                  />
+                </div>
+              ));
+
         if (this.state.showPicker) {
           children.unshift(
             <div style={styles.dialogContainer}>
